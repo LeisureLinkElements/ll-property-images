@@ -1,0 +1,169 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <ll-property-images-manager baseUrl="http://somewhere.com"></ll-property-images-manager>
+
+@demo
+-->
+<dom-module id="ll-property-images-manager">
+  <template>
+    <iron-ajax id="all" url="{{_allUrl}}" handle-as="json" on-response="_handleAll"></iron-ajax>
+    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST"></iron-ajax>
+    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT"></iron-ajax>
+    <iron-ajax id="delete" handle-as="json" on-response="_handleDelete" method="DELETE"></iron-ajax>
+  </template>
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'll-property-images-manager',
+
+    properties: {
+
+      /**
+       * The base url of the api
+       */
+      baseUrl: { type: String, notify: true, reflectToAttribute: true },
+
+      /**
+       * The base url of the api
+       */
+      unitId: { type: String, notify: true, reflectToAttribute: true },
+
+      _allUrl: {
+        type: String,
+        computed: '_buildUrl(baseUrl, _language, unitId)'
+      },
+
+      _addUrl: {
+        type: String,
+        computed: '_buildUrl(baseUrl, _language, unitId)'
+      },
+
+      _language: { type: String, readOnly: true, value: 'en' }
+
+    },
+
+    ready: function() {
+      console.log('ready');
+    },
+
+
+    /**
+     * The `images-received` event is fired when the images have been retrieved
+     * @event image-received
+     * @detail {[{ id: string, name: string, title: string, url: string, isDefault: boolean }]}
+     */
+
+    /**
+     * Retrieves the images then fires the event `images-received` event
+     * @fires images-received
+     */
+    getImages: function() {
+      var ajax = this.$.all;
+      ajax.generateRequest();
+    },
+
+    /**
+     * The `image-added` event is fired when an image has been added successfully
+     * @event image-added
+     * @detail {{ id: string, name: string, title: string, url: string, isDefault: boolean }}
+     */
+
+    /**
+     * Adds/uploads and image an image and fires the `image-added` event
+     *
+     * @fires image-added
+     * @param {{name: string, title: string, image: fileStream, isDefault: boolean}} image
+     */
+    addImage: function(image) {
+      var ajax = this.$.add;
+      ajax.body = JSON.stringify(image);
+      ajax.generateRequest();
+    },
+
+    /**
+     * The `image-updated` event is fired when an image has been added successfully
+     * @event image-updated
+     * @detail {{ id: string, name: string, title: string, url: string, isDefault: boolean }}
+     */
+
+    /**
+     * Updates the image and fires the `image-updated` event
+     *
+     * @fires image-updated
+     * @param {{id: string, name: string, title: string, image: fileStream, isDefault: boolean}} image
+     */
+    updateImage: function(image) {
+      var ajax = this.$.update;
+      ajax.url = this._buildUrlWithId(image.id);
+      ajax.body = JSON.stringify(image);
+      ajax.generateRequest();
+    },
+
+    /**
+     * The `image-removed` event is fired when an image has been removed
+     * @event image-removed
+     * @detail {{ id: id}}
+     */
+
+    /**
+     * Removes and image and fires the `image-removed` event
+     * @param {string} id
+     * @fires image-removed
+     */
+    deleteImage: function(id) {
+      var ajax = this.$.delete;
+      ajax.url = this._buildUrlWithId(id);
+      ajax.generateRequest();
+    },
+
+
+    /**
+     * The `image-made-default` event is fired when an image has been set as default successfully
+     * @event image-made-default
+     * @detail {[{ id: string, name: string, title: string, url: string, isDefault: boolean }]}
+     */
+
+    /**
+     * Makes the image the default image, and fires the event `image-made-default`
+     * @param {string} id
+     */
+    setAsDefaultImage: function(id) {
+      this.fire('image-made-default', {})
+    },
+
+    _buildUrl: function(baseUrl, language, unitId) {
+      return baseUrl + '/images/v1/' + language + '/units/' + unitId + '/images';
+    },
+
+    _buildUrlWithId: function(id) {
+      return this._buildUrl() + '/' + id;
+    },
+
+    _handleAll: function() {
+      this.fire('images-received', []);
+    },
+
+    _handleAdd: function() {
+      this.fire('image-added', {});
+    },
+
+    _handleUpdate: function() {
+      this.fire('image-updated', {});
+    },
+
+    _handleDelete: function() {
+      this.fire('image-removed', {});
+    },
+
+  });
+
+</script>

@@ -1,0 +1,87 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../ll-theme/ll-theme.html">
+<link rel="import" href="../ll-property-image/ll-property-image.html">
+<link rel="import" href="ll-property-images-manager.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <ll-property-images unitId="123111451"></ll-property-images>
+
+@demo
+-->
+<dom-module id="ll-property-images">
+
+  <template>
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
+    <div class="row">
+      <template is="dom-repeat" items="{{_images}}">
+        <ll-property-image img-name="{{item.name}}" img-title="{{item.title}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}"></ll-property-image>
+      </template>
+    </div>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'll-property-images',
+
+    properties: {
+
+      /**
+       * The property's Id
+       */
+      unitId: { type: String, notify: true, value: '' },
+
+      /**
+       * The property images
+       *
+       * @type {[{id: string, title: string, description: string, isDefault: boolean, url: string}]}
+       */
+      _images: {
+        type: Array,
+        notify: true
+      }
+    },
+
+    ready: function() {
+      this.$.manager.getImages();
+    },
+
+    /**
+     * The `ll-property-images-lasers` event is fired whenever `fireLasers` is called.
+     *
+     * @event ll-property-images-lasers
+     * @detail {{sound: String}}
+     */
+
+    /**
+     * Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+     */
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'll-property-images says, ' + response;
+    },
+
+    /**
+     * Attempts to destroy this element's enemies with an any beam of light!
+     *
+     * Or, at least, dispatches an event in the vain hope that someone else will
+     * do the zapping.
+     */
+    fireLasers: function() {
+      this.fire('ll-property-images-lasers', { sound: 'Pew pew!' });
+    }
+
+  });
+
+</script>

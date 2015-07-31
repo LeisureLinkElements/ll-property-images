@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../ll-property-images.html">
+  </head>
+  <body>
+    <ll-property-images unit-id="1234"></ll-property-images>
+
+    <script>
+      document.addEventListener('WebComponentsReady', function() {
+        var propertyImages = document.querySelector('ll-property-images');
+        propertyImages._images = [
+          {
+            id: '123',
+            name: 'blah.jpg',
+            title: 'Blah',
+            description: 'Blah description',
+            isDefault: true,
+            url: 'http://lorempixel.com/600/400'
+          }
+        ];
+        debugger;
+        console.log(propertyImages);
+      });
+    </script>
+  </body>
+</html>
