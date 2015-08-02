@@ -19,7 +19,7 @@ Example:
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
     <div class="row">
       <template is="dom-repeat" items="{{_images}}">
-        <ll-property-image img-name="{{item.name}}" img-title="{{item.title}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}"></ll-property-image>
+        <ll-property-image name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
       </template>
     </div>
   </template>
@@ -31,6 +31,11 @@ Example:
   Polymer({
 
     is: 'll-property-images',
+
+    listeners: {
+      'll-property-image-delete': '_imageDeleted',
+      'll-property-image-default': '_defaultImageChange'
+    },
 
     properties: {
 
@@ -53,33 +58,14 @@ Example:
     ready: function() {
       this.$.manager.getImages();
     },
-
-    /**
-     * The `ll-property-images-lasers` event is fired whenever `fireLasers` is called.
-     *
-     * @event ll-property-images-lasers
-     * @detail {{sound: String}}
-     */
-
-    /**
-     * Sometimes it's just nice to say hi.
-     *
-     * @param {string} greeting A positive greeting.
-     * @return {string} The full greeting.
-     */
-    sayHello: function(greeting) {
-      var response = greeting || 'Hello World!';
-      return 'll-property-images says, ' + response;
+    created: function() {
+      this.toggleClass('row', true, this);
     },
-
-    /**
-     * Attempts to destroy this element's enemies with an any beam of light!
-     *
-     * Or, at least, dispatches an event in the vain hope that someone else will
-     * do the zapping.
-     */
-    fireLasers: function() {
-      this.fire('ll-property-images-lasers', { sound: 'Pew pew!' });
+    _imageDeleted: function(e) {
+      console.log(e.detail.name);
+    },
+    _defaultImageChange: function(e) {
+      console.log(e.detail);
     }
 
   });
