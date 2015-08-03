@@ -1,13 +1,5 @@
 <!doctype html>
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
+
 <html>
   <head>
     <meta charset="utf-8">
@@ -15,42 +7,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
     <!-- Step 1: import the element to test -->
     <link rel="import" href="../ll-property-images.html">
+    <link rel="import" href="../../test-fixture/test-fixture.html">
   </head>
   <body>
 
     <!-- You can use the document as a place to set up your fixtures. -->
-    <ll-property-images></ll-property-images>
+    <test-fixture id="fixture">
+      <template>
+        <ll-property-images></ll-property-images>
+      </template>
+    </test-fixture>
 
-    <script>
-      var myEl = document.querySelector('ll-property-images');
 
-      suite('<ll-property-images>', function() {
-
-        test('defines the "author" property', function() {
-          assert.equal(myEl.author.name, 'Dimitri Glazkov');
-          assert.equal(myEl.author.image, 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg');
-        });
-
-        test('says hello', function() {
-          assert.equal(myEl.sayHello(), 'll-property-images says, Hello World!');
-
-          var greetings = myEl.sayHello('greetings Earthlings');
-          assert.equal(greetings, 'll-property-images says, greetings Earthlings');
-        });
-
-        test('fires lasers', function(done) {
-          myEl.addEventListener('ll-property-images-lasers', function(event) {
-            assert.equal(event.detail.sound, 'Pew pew!');
-            done();
-          });
-          myEl.fireLasers();
-        });
-
-      });
-    </script>
+    <script src="scripts/basic-test.js"></script>
 
   </body>
 </html>

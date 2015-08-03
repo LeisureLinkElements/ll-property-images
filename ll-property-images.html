@@ -4,6 +4,8 @@
 <link rel="import" href="../ll-property-image/ll-property-image.html">
 <link rel="import" href="ll-property-images-manager.html">
 
+<script type="application/javascript" src="../lodash/lodash.js"></script>
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -18,8 +20,8 @@ Example:
   <template>
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
     <div class="row">
-      <template is="dom-repeat" items="{{_images}}">
-        <ll-property-image name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
+      <template id="item-list" is="dom-repeat" items="{{_images}}">
+        <ll-property-image id="{{item.id}}" img-id="{{item.id}}" name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
       </template>
     </div>
   </template>
@@ -62,10 +64,29 @@ Example:
       this.toggleClass('row', true, this);
     },
     _imageDeleted: function(e) {
-      console.log(e.detail.name);
+      var img = _.find(this._images, { id: e.detail.imgId });
+      var remove = this._images.splice(img, 1);
+
+
+//      this._images = _.without(this._images, img);
+
+      console.log(this._images);
     },
     _defaultImageChange: function(e) {
       console.log(e.detail);
+    },
+    getChangedImages: function() {
+      //We need to get the NodeList object, convert it to an array (so we can loop)
+      var _changedImages = [];
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+
+      Array.prototype.slice.call(_imageNodeList).forEach(function(image){
+        if(image.isDirty()) {
+          _changedImages.push(image.getChanges());
+        }
+      });
+
+      return _changedImages;
     }
 
   });
