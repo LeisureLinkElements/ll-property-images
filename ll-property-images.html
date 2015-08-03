@@ -64,13 +64,8 @@ Example:
       this.toggleClass('row', true, this);
     },
     _imageDeleted: function(e) {
-      var img = _.find(this._images, { id: e.detail.imgId });
-      var remove = this._images.splice(img, 1);
-
-
-//      this._images = _.without(this._images, img);
-
-      console.log(this._images);
+      var img = _.findIndex(this._images, { id: e.detail.imgId });
+      this.splice('_images', img, 1 );
     },
     _defaultImageChange: function(e) {
       console.log(e.detail);
