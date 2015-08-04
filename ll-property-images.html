@@ -23,7 +23,7 @@ Example:
       <template id="item-list" is="dom-repeat" items="{{_images}}">
         <ll-property-image id="{{item.id}}" img-id="{{item.id}}" name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
       </template>
-    </div>
+
   </template>
 
 </dom-module>
@@ -73,18 +73,14 @@ Example:
     },
     getChangedImages: function() {
       //We need to get the NodeList object, convert it to an array (so we can loop)
-      var _changedImages = [];
       var _imageNodeList = this.querySelectorAll('ll-property-image');
 
-      Array.prototype.slice.call(_imageNodeList).forEach(function(image){
-        if(image.isDirty()) {
-          _changedImages.push(image.getChanges());
-        }
-      });
+      var _changedImages = Array.prototype.slice.call(_imageNodeList)
+        .filter(function(image) { return image.isDirty() })
+        .map(function(image) { return image.getChanges() });
 
       console.log(_changedImages);
       return _changedImages;
-
     }
 
   });

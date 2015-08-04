@@ -68,7 +68,9 @@ describe('<ll-property-images>', function() {
     expect(element.querySelectorAll('ll-property-image').length).to.be.eql(6);
   });
 
-  it('should listen for a delete event')
+  it('should listen for a delete event', function() {
+
+  });
 
 
 });
