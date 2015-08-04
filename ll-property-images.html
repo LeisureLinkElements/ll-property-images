@@ -64,11 +64,12 @@ Example:
       this.toggleClass('row', true, this);
     },
     _imageDeleted: function(e) {
-      var img = _.findIndex(this._images, { id: e.detail.imgId });
-      this.splice('_images', img, 1 );
+//      var img = _.findIndex(this._images, { id: e.detail.imgId });
+//      this.splice('_images', img, 1 );
+        this.$.manager.deleteImage(e.detail.imgId);
     },
     _defaultImageChange: function(e) {
-      console.log(e.detail);
+      this.$.manager.setAsDefaultImage(e.detail.imgId);
     },
     getChangedImages: function() {
       //We need to get the NodeList object, convert it to an array (so we can loop)
@@ -81,7 +82,9 @@ Example:
         }
       });
 
+      console.log(_changedImages);
       return _changedImages;
+
     }
 
   });

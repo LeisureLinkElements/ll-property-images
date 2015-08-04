@@ -137,7 +137,7 @@ Example:
      * @param {string} id
      */
     setAsDefaultImage: function(id) {
-      this.fire('image-made-default', {})
+      this.fire('image-made-default', {});
     },
 
     _buildUrl: function(baseUrl, language, unitId) {
@@ -162,7 +162,7 @@ Example:
 
     _handleDelete: function() {
       this.fire('image-removed', {});
-    },
+    }
 
   });
 
