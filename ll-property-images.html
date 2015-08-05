@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
 
 <link rel="import" href="../ll-theme/ll-theme.html">
 <link rel="import" href="../ll-property-image/ll-property-image.html">
@@ -23,7 +24,18 @@ Example:
       <template id="item-list" is="dom-repeat" items="{{_images}}">
         <ll-property-image id="{{item.id}}" img-id="{{item.id}}" name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
       </template>
+    </div>
 
+    <paper-dialog id="confirmation" modal>
+      <h4>Delete image?</h4>
+      <div>
+        Are you sure you would like to delete this image?
+      </div>
+      <div style="text-align: right;">
+        <button class="btn btn-default" dialog-dismiss>Cancel</button>
+        <button class="btn btn-destructive" dialog-confirm autofocus>Delete Image</button>
+      </div>
+    </paper-dialog>
   </template>
 
 </dom-module>
@@ -36,7 +48,8 @@ Example:
 
     listeners: {
       'll-property-image-delete': '_imageDeleted',
-      'll-property-image-default': '_defaultImageChange'
+      'll-property-image-default': '_defaultImageChange',
+      'iron-overlay-closed': '_dialogClosed'
     },
 
     properties: {
@@ -64,9 +77,9 @@ Example:
       this.toggleClass('row', true, this);
     },
     _imageDeleted: function(e) {
-//      var img = _.findIndex(this._images, { id: e.detail.imgId });
-//      this.splice('_images', img, 1 );
-        this.$.manager.deleteImage(e.detail.imgId);
+      _itemToDelete = e.detail.imgId;
+      this.$.confirmation.open();
+      this.$.confirmation.setAttribute('img-id', e.detail.imgId);
     },
     _defaultImageChange: function(e) {
       this.$.manager.setAsDefaultImage(e.detail.imgId);
@@ -76,11 +89,22 @@ Example:
       var _imageNodeList = this.querySelectorAll('ll-property-image');
 
       var _changedImages = Array.prototype.slice.call(_imageNodeList)
-        .filter(function(image) { return image.isDirty() })
-        .map(function(image) { return image.getChanges() });
+        .filter(function(image) {
+          return image.isDirty()
+        })
+        .map(function(image) {
+          return image.getChanges()
+        });
 
       console.log(_changedImages);
       return _changedImages;
+    },
+    _dialogClosed: function(e) {
+      if (e && e.detail && e.detail.confirmed) {
+//      var img = _.findIndex(this._images, { id: this.$.confirmation.getAttribute('img-id') });
+//      this.splice('_images', img, 1 );
+        this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
+      }
     }
 
   });
