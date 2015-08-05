@@ -22,7 +22,17 @@ Example:
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
     <div class="row">
       <template id="item-list" is="dom-repeat" items="{{_images}}">
-        <ll-property-image id="{{item.id}}" img-id="{{item.id}}" name="{{item.name}}" title="{{item.title}}" description="{{item.description}}" src="{{item.url}}" is-default-image$="{{item.isDefaultImage}}" tags="{{item.tags}}"></ll-property-image>
+        <ll-property-image
+          id="{{item.id}}"
+          img-id="{{item.id}}"
+          name="{{item.name}}"
+          title="{{item.title}}"
+          description="{{item.description}}"
+          src="{{item.url}}"
+          is-default-image$="{{item.isDefaultImage}}"
+          tags="{{item.tags}}"
+          draggable="true">
+        </ll-property-image>
       </template>
     </div>
 
