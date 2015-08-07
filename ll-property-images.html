@@ -20,8 +20,8 @@ Example:
 
   <template>
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
-    <div class="row">
-      <template id="item-list" is="dom-repeat" items="{{_images}}">
+    <div class="row" id="row">
+      <template id="item-list" is="dom-repeat" items="{{_images}}" sort="_sort">
         <ll-property-image
           id="{{item.id}}"
           img-id="{{item.id}}"
@@ -31,7 +31,7 @@ Example:
           src="{{item.url}}"
           is-default-image$="{{item.isDefaultImage}}"
           tags="{{item.tags}}"
-          draggable="true">
+          sort-order="{{item.sortOrder}}">
         </ll-property-image>
       </template>
     </div>
@@ -59,7 +59,8 @@ Example:
     listeners: {
       'll-property-image-delete': '_imageDeleted',
       'll-property-image-default': '_defaultImageChange',
-      'iron-overlay-closed': '_dialogClosed'
+      'iron-overlay-closed': '_dialogClosed',
+      'll-property-image-drag': '_dragDropped'
     },
 
     properties: {
@@ -82,6 +83,7 @@ Example:
 
     ready: function() {
       this.$.manager.getImages();
+
     },
     created: function() {
       this.toggleClass('row', true, this);
@@ -106,7 +108,6 @@ Example:
           return image.getChanges()
         });
 
-      console.log(_changedImages);
       return _changedImages;
     },
     _dialogClosed: function(e) {
@@ -115,6 +116,44 @@ Example:
 //      this.splice('_images', img, 1 );
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
       }
+    },
+    _sort: function(a, b) {
+      if (a.sortOrder > b.sortOrder) {
+        return 1;
+      }
+      if (a.sortOrder < b.sortOrder) {
+        return -1;
+      }
+      return 0;
+    },
+    _dragDropped: function(data) {
+
+      var _item;
+      var _target;
+
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+      Array.prototype.slice.call(_imageNodeList)
+        .forEach(function(item) {
+
+          item.resetDropStyles();
+
+          if (item.id === data.detail.item) {
+            _item = item;
+          } else if (item.id == data.detail.target) {
+            _target = item;
+          }
+        });
+
+      Polymer.dom(this.$.row).insertBefore(_item, _target);
+
+      this.updateSortValues();
+    },
+    updateSortValues: function() {
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+      Array.prototype.slice.call(_imageNodeList)
+        .forEach(function(item, index) {
+          item.setSortOrder(index);
+        });
     }
 
   });
