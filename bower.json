@@ -22,7 +22,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
     "ll-theme": "LeisureLinkElements/ll-theme#~0.0.1",
-    "ll-property-image": "LeisureLinkElements/ll-property-image#including-ll-token-field",
+    "ll-property-image": "LeisureLinkElements/ll-property-image",
     "iron-ajax": "PolymerElements/iron-ajax#~1.0.3",
     "lodash": "~3.10.1",
     "paper-dialog": "PolymerElements/paper-dialog#~1.0.1"
