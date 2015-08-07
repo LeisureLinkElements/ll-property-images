@@ -126,6 +126,13 @@ Example:
       }
       return 0;
     },
+    /**
+     * Method gets called after a ll-property-image-drag event is raised
+     * @param {Object} data
+     * @param {string} item - The item that is moving
+     * @param {string} target - The drop target. We will move BEFORE this item.
+     * @private
+     */
     _dragDropped: function(data) {
 
       var _item;
@@ -146,9 +153,14 @@ Example:
 
       Polymer.dom(this.$.row).insertBefore(_item, _target);
 
-      this.updateSortValues();
+      this._updateSortValues();
     },
-    updateSortValues: function() {
+    /**
+     * Method to iterate of child ll-property-images and call setSortOrder.
+     * Triggered after a drag/drop event
+     * @private
+     */
+    _updateSortValues: function() {
       var _imageNodeList = this.querySelectorAll('ll-property-image');
       Array.prototype.slice.call(_imageNodeList)
         .forEach(function(item, index) {

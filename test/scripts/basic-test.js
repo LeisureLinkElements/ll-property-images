@@ -3,6 +3,7 @@
 describe('<ll-property-images>', function() {
 
   var element;
+
   beforeEach(function(done) {
     element = fixture('fixture');
 
@@ -101,6 +102,54 @@ describe('<ll-property-images>', function() {
     expect(element.querySelectorAll('ll-property-image')[5].id).to.be.eql('123');
     expect(element.querySelectorAll('ll-property-image')[6].id).to.be.eql('xty6');
     expect(element.querySelectorAll('ll-property-image')[7].id).to.be.eql('xty7');
+  });
+
+
+  it('should call the _dragDropped function', function() {
+    var _item = element.querySelectorAll('ll-property-image')[1]; //id 12345
+    var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
+
+    var spy = sinon.spy(element, '_dragDropped');
+
+    var params = {
+      item: _item.imgId,
+      target: _target.imgId
+    };
+    _item.fire('ll-property-image-drag', params);
+    expect(spy.calledOnce).to.be.true;
+  });
+
+  it('should change the order of the ll-property-image array when _dragDropped is called', function() {
+    var _item = element.querySelectorAll('ll-property-image')[1]; //id 12345
+    var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
+    var spy = sinon.spy(element, '_dragDropped');
+    var params = {
+      item: _item.imgId,
+      target: _target.imgId
+    };
+
+    _item.fire('ll-property-image-drag', params);
+    expect(spy.calledOnce).to.be.true;
+    expect(element.querySelectorAll('ll-property-image')[0].imgId).to.be.eql('12345');
+    expect(element.querySelectorAll('ll-property-image')[1].imgId).to.be.eql('1234');
+  });
+
+  it('should call updateSortValues when _dragDropped is called', function() {
+    var _item = element.querySelectorAll('ll-property-image')[7]; //id xty6
+    var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
+    var spy = sinon.spy(element, '_updateSortValues');
+    var params = {
+      item: _item.imgId,
+      target: _target.imgId
+    };
+
+    expect(_item.sortOrder).to.be.eql(99);
+    expect(_target.sortOrder).to.be.eql(1);
+
+    _item.fire('ll-property-image-drag', params);
+    expect(spy.calledOnce).to.be.true;
+    expect(_item.sortOrder).to.be.eql(0);
+    expect(_target.sortOrder).to.be.eql(1);
   });
 
 
