@@ -18,8 +18,20 @@ Example:
 -->
 <dom-module id="ll-property-images">
 
+  <style>
+    .save-changes {
+      padding-bottom: 15px;
+      text-align: right;
+      padding-right: 15px;
+    }
+  </style>
+
   <template>
+
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
+    <div class="row save-changes">
+      <button class="btn btn-primary" on-tap="getChangedImages">Save Changes</button>
+    </div>
     <div class="row" id="row">
       <template id="item-list" is="dom-repeat" items="{{_images}}" sort="_sort">
         <ll-property-image
@@ -83,19 +95,52 @@ Example:
 
     ready: function() {
       this.$.manager.getImages();
+      var _this = this;
+
+      window.onbeforeunload = function() {
+        var unsaved = _this.getChangedImages();
+        if (unsaved.length !== 0) {
+          if(unsaved.length === 1) {
+            return 'There is ' + unsaved.length + ' image with unsaved changes.';
+          } else {
+            return 'There are ' + unsaved.length + ' images with unsaved changes.';
+          }
+        }
+      }
 
     },
+    /**
+     * Polymer lifecycle event.
+     * Adding the bootstrap row class to the root element
+     */
     created: function() {
       this.toggleClass('row', true, this);
     },
+    /**
+     * Fired when it receives the ll-property-image-delete event
+     * Will set an attribute to save the image that is being deleted
+     * Will show a confirmation dialog
+     * @private
+     */
     _imageDeleted: function(e) {
       _itemToDelete = e.detail.imgId;
       this.$.confirmation.open();
       this.$.confirmation.setAttribute('img-id', e.detail.imgId);
     },
+    /**
+     * Fired when it received the ll-property-image-default event
+     * Will call the manager to set the image as the default property image.
+     * @private
+     */
     _defaultImageChange: function(e) {
       this.$.manager.setAsDefaultImage(e.detail.imgId);
     },
+    /**
+     * Will iterate over all child ll-property-image tags and call isDirty and then getChanges
+     * Deleting an image should happen immediately. Because of this, a delete will not show up as dirty, and will not appear in the getChanges array.
+     * returns{Array}
+     * @public
+     */
     getChangedImages: function() {
       //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
@@ -107,9 +152,14 @@ Example:
         .map(function(image) {
           return image.getChanges()
         });
-
       return _changedImages;
     },
+    /**
+     * Called when the Delete confirmation modal is closed.
+     * If the modal was confirmed, we will ask the manager to delete the image.
+     *
+     * @private
+     */
     _dialogClosed: function(e) {
       if (e && e.detail && e.detail.confirmed) {
 //      var img = _.findIndex(this._images, { id: this.$.confirmation.getAttribute('img-id') });
@@ -117,6 +167,10 @@ Example:
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
       }
     },
+    /**
+     * Sorts the initial list of returned images by the image sortOrder property.
+     * @private
+     */
     _sort: function(a, b) {
       if (a.sortOrder > b.sortOrder) {
         return 1;
