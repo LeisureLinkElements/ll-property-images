@@ -25,7 +25,8 @@
     "ll-property-image": "LeisureLinkElements/ll-property-image#feature-drag-drop",
     "iron-ajax": "PolymerElements/iron-ajax#~1.0.3",
     "lodash": "~3.10.1",
-    "paper-dialog": "PolymerElements/paper-dialog#~1.0.1"
+    "paper-dialog": "PolymerElements/paper-dialog#~1.0.1",
+    "ll-image-uploader": "LeisureLinkElements/ll-image-uploader"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

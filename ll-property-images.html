@@ -4,6 +4,7 @@
 <link rel="import" href="../ll-theme/ll-theme.html">
 <link rel="import" href="../ll-property-image/ll-property-image.html">
 <link rel="import" href="ll-property-images-manager.html">
+<link rel="import" href="../ll-image-uploader/ll-image-uploader.html">
 
 <script type="application/javascript" src="../lodash/lodash.js"></script>
 
@@ -28,7 +29,9 @@ Example:
 
   <template>
 
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000"></ll-property-images-manager>
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000">
+    </ll-property-images-manager>
+    <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
     <div class="row save-changes">
       <button class="btn btn-primary" on-tap="getChangedImages">Save Changes</button>
     </div>
@@ -50,6 +53,7 @@ Example:
 
     <paper-dialog id="confirmation" modal>
       <h4>Delete image?</h4>
+
       <div>
         Are you sure you would like to delete this image?
       </div>
@@ -100,7 +104,7 @@ Example:
       window.onbeforeunload = function() {
         var unsaved = _this.getChangedImages();
         if (unsaved.length !== 0) {
-          if(unsaved.length === 1) {
+          if (unsaved.length === 1) {
             return 'There is ' + unsaved.length + ' image with unsaved changes.';
           } else {
             return 'There are ' + unsaved.length + ' images with unsaved changes.';
@@ -220,6 +224,16 @@ Example:
         .forEach(function(item, index) {
           item.setSortOrder(index);
         });
+    },
+    /**
+     * Handles the ll-property-uploader `upload` event
+     * @private
+     */
+    _handleUpload: function(e) {
+      var upload = e.detail;
+      console.log(upload);
+
+      this.$.uploader.reset();
     }
 
   });
