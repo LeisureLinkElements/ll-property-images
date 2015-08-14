@@ -18,22 +18,35 @@ Example:
 @demo
 -->
 <dom-module id="ll-property-images">
+
+  <style>
+    .save-changes {
+      padding-bottom: 15px;
+      text-align: right;
+      padding-right: 15px;
+    }
+  </style>
+
   <template>
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000" >
+
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000">
     </ll-property-images-manager>
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
-    <div class="row">
-      <template id="item-list" is="dom-repeat" items="{{_images}}">
+    <div class="row save-changes">
+      <button class="btn btn-primary" on-tap="getChangedImages">Save Changes</button>
+    </div>
+    <div class="row" id="row">
+      <template id="item-list" is="dom-repeat" items="{{_images}}" sort="_sort">
         <ll-property-image
-            id="{{item.id}}"
-            img-id="{{item.id}}"
-            name="{{item.name}}"
-            title="{{item.title}}"
-            description="{{item.description}}"
-            src="{{item.url}}"
-            is-default-image$="{{item.isDefaultImage}}"
-            tags="{{item.tags}}"
-            draggable="true">
+          id="{{item.id}}"
+          img-id="{{item.id}}"
+          name="{{item.name}}"
+          title="{{item.title}}"
+          description="{{item.description}}"
+          src="{{item.url}}"
+          is-default-image$="{{item.isDefaultImage}}"
+          tags="{{item.tags}}"
+          sort-order="{{item.sortOrder}}">
         </ll-property-image>
       </template>
     </div>
@@ -62,7 +75,8 @@ Example:
     listeners: {
       'll-property-image-delete': '_imageDeleted',
       'll-property-image-default': '_defaultImageChange',
-      'iron-overlay-closed': '_dialogClosed'
+      'iron-overlay-closed': '_dialogClosed',
+      'll-property-image-drag': '_dragDropped'
     },
 
     properties: {
@@ -85,39 +99,131 @@ Example:
 
     ready: function() {
       this.$.manager.getImages();
+      var _this = this;
+
+      window.onbeforeunload = function() {
+        var unsaved = _this.getChangedImages();
+        if (unsaved.length !== 0) {
+          if (unsaved.length === 1) {
+            return 'There is ' + unsaved.length + ' image with unsaved changes.';
+          } else {
+            return 'There are ' + unsaved.length + ' images with unsaved changes.';
+          }
+        }
+      }
+
     },
+    /**
+     * Polymer lifecycle event.
+     * Adding the bootstrap row class to the root element
+     */
     created: function() {
       this.toggleClass('row', true, this);
     },
+    /**
+     * Fired when it receives the ll-property-image-delete event
+     * Will set an attribute to save the image that is being deleted
+     * Will show a confirmation dialog
+     * @private
+     */
     _imageDeleted: function(e) {
       _itemToDelete = e.detail.imgId;
       this.$.confirmation.open();
       this.$.confirmation.setAttribute('img-id', e.detail.imgId);
     },
+    /**
+     * Fired when it received the ll-property-image-default event
+     * Will call the manager to set the image as the default property image.
+     * @private
+     */
     _defaultImageChange: function(e) {
       this.$.manager.setAsDefaultImage(e.detail.imgId);
     },
+    /**
+     * Will iterate over all child ll-property-image tags and call isDirty and then getChanges
+     * Deleting an image should happen immediately. Because of this, a delete will not show up as dirty, and will not appear in the getChanges array.
+     * returns{Array}
+     * @public
+     */
     getChangedImages: function() {
       //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
 
       var _changedImages = Array.prototype.slice.call(_imageNodeList)
-          .filter(function(image) {
-            return image.isDirty()
-          })
-          .map(function(image) {
-            return image.getChanges()
-          });
-
-      console.log(_changedImages);
+        .filter(function(image) {
+          return image.isDirty()
+        })
+        .map(function(image) {
+          return image.getChanges()
+        });
       return _changedImages;
     },
+    /**
+     * Called when the Delete confirmation modal is closed.
+     * If the modal was confirmed, we will ask the manager to delete the image.
+     *
+     * @private
+     */
     _dialogClosed: function(e) {
       if (e && e.detail && e.detail.confirmed) {
 //      var img = _.findIndex(this._images, { id: this.$.confirmation.getAttribute('img-id') });
 //      this.splice('_images', img, 1 );
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
       }
+    },
+    /**
+     * Sorts the initial list of returned images by the image sortOrder property.
+     * @private
+     */
+    _sort: function(a, b) {
+      if (a.sortOrder > b.sortOrder) {
+        return 1;
+      }
+      if (a.sortOrder < b.sortOrder) {
+        return -1;
+      }
+      return 0;
+    },
+    /**
+     * Method gets called after a ll-property-image-drag event is raised
+     * @param {Object} data
+     * @param {string} item - The item that is moving
+     * @param {string} target - The drop target. We will move BEFORE this item.
+     * @private
+     */
+    _dragDropped: function(data) {
+
+      var _item;
+      var _target;
+
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+      Array.prototype.slice.call(_imageNodeList)
+        .forEach(function(item) {
+
+          item.resetDropStyles();
+
+          if (item.id === data.detail.item) {
+            _item = item;
+          } else if (item.id == data.detail.target) {
+            _target = item;
+          }
+        });
+
+      Polymer.dom(this.$.row).insertBefore(_item, _target);
+
+      this._updateSortValues();
+    },
+    /**
+     * Method to iterate of child ll-property-images and call setSortOrder.
+     * Triggered after a drag/drop event
+     * @private
+     */
+    _updateSortValues: function() {
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+      Array.prototype.slice.call(_imageNodeList)
+        .forEach(function(item, index) {
+          item.setSortOrder(index);
+        });
     },
     /**
      * Handles the ll-property-uploader `upload` event
