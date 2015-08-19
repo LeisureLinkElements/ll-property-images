@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../test-fixture/test-fixture-mocha.js"></script>
+    <script src="../../sinonjs/sinon.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../ll-property-images.html">
+    <link rel="import" href="../../test-fixture/test-fixture.html">
+  </head>
+  <body>
+
+  <!-- You can use the document as a place to set up your fixtures. -->
+  <test-fixture id="fixture">
+    <template>
+      <ll-property-images unit-id="123456"></ll-property-images>
+    </template>
+  </test-fixture>
+
+
+  <script src="scripts/manager.js"></script>
+
+  </body>
+</html>

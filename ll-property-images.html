@@ -95,7 +95,8 @@ Example:
        */
       _images: {
         type: Array,
-        notify: true
+        notify: true,
+        value: []
       }
     },
 
@@ -238,6 +239,10 @@ Example:
       this.$.uploader.reset();
     },
     _imagesReceived: function(data) {
+      if(!data || !data.detail) {
+        return;
+      }
+
       this._images = data.detail.map(function(image) {
         return {
           id: image._id,
