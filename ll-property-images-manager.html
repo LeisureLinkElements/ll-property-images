@@ -108,7 +108,7 @@ Example:
      */
     updateImage: function(image) {
       var ajax = this.$.update;
-      ajax.url = this._buildUrlWithId(image.id);
+      ajax.url = this._buildUrlWithId(this._baseUrl, this._language, image.id);
       ajax.body = JSON.stringify(image);
       ajax.generateRequest();
     },
@@ -126,7 +126,7 @@ Example:
      */
     deleteImage: function(id) {
       var ajax = this.$.delete;
-      ajax.url = this._buildUrlWithId(id);
+      ajax.url = this._buildUrlWithId(this._baseUrl, this._language, id);
       ajax.generateRequest();
     },
 
@@ -149,8 +149,8 @@ Example:
       return baseUrl + '/images/public/v1/' + language + '/units/' + unitId + '/images';
     },
 
-    _buildUrlWithId: function(id) {
-      return this.baseUrl + '/images/public/v1/' + this._language + '/images/' + id
+    _buildUrlWithId: function(baseUrl, language, id) {
+      return baseUrl+ '/images/public/v1/' + language + '/images/' + id
     },
 
 
@@ -166,8 +166,8 @@ Example:
       this.fire('image-updated', {});
     },
 
-    _handleDelete: function() {
-      this.fire('image-removed', {});
+    _handleDelete: function(e, detail) {
+      this.fire('image-removed', detail.response);
     }
 
   });

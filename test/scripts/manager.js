@@ -24,29 +24,21 @@ describe('<ll-property-images>', function() {
     expect(manager._language).to.be.eql('en');
   });
 
-  //element.addEventListener('images-received', function() {
-  //  var propertyImages = document.querySelector('ll-property-images');
-  //  propertyImages._images = images;
-  //  var _item = element.querySelectorAll('ll-property-image')[1]; //id 12345
-  //  var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
-  //
-  //  var spy = sinon.spy(element, '_dragDropped');
-  //
-  //  var params = {
-  //    item: _item.imgId,
-  //    target: _target.imgId
-  //  };
-  //  _item.fire('ll-property-image-drag', params);
-  //  expect(spy.calledOnce).to.be.true;
-  //});
-
 
   it('should be able to build the URL for units', function() {
-
+    var baseUrl = 'http://images-api';
+    var language = 'en';
+    var unitId = "123445";
+    var url = manager._buildUrl(baseUrl, language, unitId);
+    expect(url).to.be.eql('http://images-api/images/public/v1/en/units/123445/images');
   });
 
   it('should be able to build the URL for property level edits', function() {
-
+    var baseUrl = 'http://images-api';
+    var language = 'en';
+    var unitId = "123445";
+    var url = manager._buildUrlWithId(baseUrl, language, unitId);
+    expect(url).to.be.eql('http://images-api/images/public/v1/en/images/123445');
   });
 
   it('should fire "images-received" when _handleAll is called from the manager', function() {
