@@ -238,6 +238,13 @@ Example:
 
       this.$.uploader.reset();
     },
+    /**
+     * This method is called when the event 'images-received' is raised from the Manager.
+     * It will contain the array of the images that needs to be displayed.
+     * @param {Object} data
+     * @param {Array} data.detail - The Array of Images
+     * @private
+     */
     _imagesReceived: function(data) {
       if(!data || !data.detail) {
         return;
@@ -256,6 +263,13 @@ Example:
         }
       });
     },
+    /**
+     * This method is called when the event 'image-added' is raised from the Manager.
+     * It will contain an object with the data for the image that needs to be added.
+     * @param {Object} data
+     * @param {Object} data.detail
+     * @private
+     */
     _imageAdded: function(data) {
       var image = data.detail;
 
