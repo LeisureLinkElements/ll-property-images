@@ -29,7 +29,7 @@ Example:
 
   <template>
 
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000">
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://images-api.ka">
     </ll-property-images-manager>
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
     <div class="row save-changes">
@@ -76,7 +76,9 @@ Example:
       'll-property-image-delete': '_imageDeleted',
       'll-property-image-default': '_defaultImageChange',
       'iron-overlay-closed': '_dialogClosed',
-      'll-property-image-drag': '_dragDropped'
+      'll-property-image-drag': '_dragDropped',
+      'images-received': '_imagesReceived',
+      'image-added': '_imageAdded'
     },
 
     properties: {
@@ -229,11 +231,39 @@ Example:
      * Handles the ll-property-uploader `upload` event
      * @private
      */
-    _handleUpload: function(e) {
-      var upload = e.detail;
-      console.log(upload);
+    _handleUpload: function(data) {
+      var upload = data.detail;
+      this.$.manager.addImage(data.detail);
 
       this.$.uploader.reset();
+    },
+    _imagesReceived: function(data) {
+      this._images = data.detail.map(function(image) {
+        return {
+          id: image._id,
+          name: image.fileName,
+          title: image.title,
+          description: image.description,
+          isDefault: image.isDefault || false,
+          tags: image.tags || [],
+          url: 'http://804edaf5c020a1ea3941-18408fe89fb11097c2769b26e979f623.r31.cf1.rackcdn.com/' + image.url,
+          sortOrder: image.sortOrder || 0
+        }
+      });
+    },
+    _imageAdded: function(data) {
+      var image = data.detail;
+
+      this.push('_images', {
+        id: image._id,
+        name: image.fileName,
+        title: image.title,
+        description: image.description,
+        isDefault: image.isDefault || false,
+        tags: image.tags || [],
+        url: 'http://804edaf5c020a1ea3941-18408fe89fb11097c2769b26e979f623.r31.cf1.rackcdn.com/' + image.url,
+        sortOrder: this._images.length
+      });
     }
 
   });

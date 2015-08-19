@@ -85,7 +85,12 @@ Example:
      */
     addImage: function(image) {
       var ajax = this.$.add;
-      ajax.body = JSON.stringify(image);
+      var data = new FormData();
+
+      data.append("image", image.file);
+      data.append("title", image.title);
+      ajax.contentType = null;
+      ajax.body = data;
       ajax.generateRequest();
     },
 
@@ -141,19 +146,20 @@ Example:
     },
 
     _buildUrl: function(baseUrl, language, unitId) {
-      return baseUrl + '/images/v1/' + language + '/units/' + unitId + '/images';
+      return baseUrl + '/images/public/v1/' + language + '/units/' + unitId + '/images';
     },
 
     _buildUrlWithId: function(id) {
-      return this._buildUrl() + '/' + id;
+      return this.baseUrl + '/images/public/v1/' + this._language + '/images/' + id
     },
 
-    _handleAll: function() {
-      this.fire('images-received', []);
+
+    _handleAll: function(e, detail) {
+      this.fire('images-received', detail.response);
     },
 
-    _handleAdd: function() {
-      this.fire('image-added', {});
+    _handleAdd: function(e, detail) {
+      this.fire('image-added', detail.response);
     },
 
     _handleUpdate: function() {
