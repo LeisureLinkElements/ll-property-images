@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
+<script type="application/javascript" src="../lodash/lodash.js"></script>
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -13,9 +15,9 @@ Example:
 <dom-module id="ll-property-images-manager">
   <template>
     <iron-ajax id="all" url="{{_allUrl}}" handle-as="json" on-response="_handleAll"></iron-ajax>
-    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST"></iron-ajax>
-    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT"></iron-ajax>
-    <iron-ajax id="delete" handle-as="json" on-response="_handleDelete" method="DELETE"></iron-ajax>
+    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST" on-error="_handleAjaxError"></iron-ajax>
+    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT" on-error="_handleAjaxError"></iron-ajax>
+    <iron-ajax id="delete" handle-as="text" on-response="_handleDelete" method="DELETE" on-error="_handleAjaxError"></iron-ajax>
   </template>
 </dom-module>
 
@@ -126,7 +128,7 @@ Example:
      */
     deleteImage: function(id) {
       var ajax = this.$.delete;
-      ajax.url = this._buildUrlWithId(this._baseUrl, this._language, id);
+      ajax.url = this._buildUrlWithId(this.baseUrl, this._language, id);
       ajax.generateRequest();
     },
 
@@ -167,7 +169,11 @@ Example:
     },
 
     _handleDelete: function(e, detail) {
-      this.fire('image-removed', detail.response);
+      var id = _.last(detail.xhr.responseURL.split('/'));
+      this.fire('image-removed', id);
+    },
+    _handleAjaxError: function(e, detail) {
+      this.fire('image-action-failed', detail.error);
     }
 
   });

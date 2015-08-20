@@ -90,20 +90,22 @@ describe('<ll-property-images>', function() {
 
   });
 
-  it('should create a ll-property-image for each item in the array', function() {
-    element.addEventListener('images-received', function() {
-      var propertyImages = document.querySelector('ll-property-images');
-      propertyImages._images = images;
+  it('should create a ll-property-image for each item in the array', function(done) {
+    var propertyImages = document.querySelector('ll-property-images');
+    propertyImages._images = images;
+
+    element.addEventListener('images-loaded', function() {
       expect(element.querySelectorAll('ll-property-image').length).to.be.eql(8);
+      done();
     });
   });
 
 
-  it('should sort the items based on their sortOrder', function() {
+  it('should sort the items based on their sortOrder', function(done) {
+    var propertyImages = document.querySelector('ll-property-images');
+    propertyImages._images = images;
 
-    element.addEventListener('images-received', function() {
-      var propertyImages = document.querySelector('ll-property-images');
-      propertyImages._images = images;
+    element.addEventListener('images-loaded', function() {
       expect(element.querySelectorAll('ll-property-image')[0].id).to.be.eql('1234');
       expect(element.querySelectorAll('ll-property-image')[1].id).to.be.eql('12345');
       expect(element.querySelectorAll('ll-property-image')[2].id).to.be.eql('12346');
@@ -112,16 +114,16 @@ describe('<ll-property-images>', function() {
       expect(element.querySelectorAll('ll-property-image')[5].id).to.be.eql('123');
       expect(element.querySelectorAll('ll-property-image')[6].id).to.be.eql('xty6');
       expect(element.querySelectorAll('ll-property-image')[7].id).to.be.eql('xty7');
+      done();
     });
-
   });
 
 
-  it('should call the _dragDropped function', function() {
+  it('should call the _dragDropped function', function(done) {
+    var propertyImages = document.querySelector('ll-property-images');
+    propertyImages._images = images;
 
-    element.addEventListener('images-received', function() {
-      var propertyImages = document.querySelector('ll-property-images');
-      propertyImages._images = images;
+    element.addEventListener('images-loaded', function() {
       var _item = element.querySelectorAll('ll-property-image')[1]; //id 12345
       var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
 
@@ -133,14 +135,15 @@ describe('<ll-property-images>', function() {
       };
       _item.fire('ll-property-image-drag', params);
       expect(spy.calledOnce).to.be.true;
+      done();
     });
-
   });
 
-  it('should change the order of the ll-property-image array when _dragDropped is called', function() {
-    element.addEventListener('images-received', function() {
-      var propertyImages = document.querySelector('ll-property-images');
-      propertyImages._images = images;
+  it('should change the order of the ll-property-image array when _dragDropped is called', function(done) {
+    var propertyImages = document.querySelector('ll-property-images');
+    propertyImages._images = images;
+
+    element.addEventListener('images-loaded', function() {
       var _item = element.querySelectorAll('ll-property-image')[1]; //id 12345
       var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
       var spy = sinon.spy(element, '_dragDropped');
@@ -153,15 +156,16 @@ describe('<ll-property-images>', function() {
       expect(spy.calledOnce).to.be.true;
       expect(element.querySelectorAll('ll-property-image')[0].imgId).to.be.eql('12345');
       expect(element.querySelectorAll('ll-property-image')[1].imgId).to.be.eql('1234');
+      done();
     });
-
-
   });
 
-  it('should call updateSortValues when _dragDropped is called', function() {
-    element.addEventListener('images-received', function() {
-      var propertyImages = document.querySelector('ll-property-images');
-      propertyImages._images = images;
+  it('should call updateSortValues when _dragDropped is called', function(done) {
+    var propertyImages = document.querySelector('ll-property-images');
+    propertyImages._images = images;
+
+    element.addEventListener('images-loaded', function() {
+
       var _item = element.querySelectorAll('ll-property-image')[7]; //id xty6
       var _target = element.querySelectorAll('ll-property-image')[0]; //id 1234
       var spy = sinon.spy(element, '_updateSortValues');
@@ -177,9 +181,7 @@ describe('<ll-property-images>', function() {
       expect(spy.calledOnce).to.be.true;
       expect(_item.sortOrder).to.be.eql(0);
       expect(_target.sortOrder).to.be.eql(1);
+      done();
     });
-
   });
-
-
 });

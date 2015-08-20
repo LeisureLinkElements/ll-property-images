@@ -78,7 +78,8 @@ Example:
       'iron-overlay-closed': '_dialogClosed',
       'll-property-image-drag': '_dragDropped',
       'images-received': '_imagesReceived',
-      'image-added': '_imageAdded'
+      'image-added': '_imageAdded',
+      'image-removed': '_imageRemoved'
     },
 
     properties: {
@@ -169,8 +170,6 @@ Example:
      */
     _dialogClosed: function(e) {
       if (e && e.detail && e.detail.confirmed) {
-//      var img = _.findIndex(this._images, { id: this.$.confirmation.getAttribute('img-id') });
-//      this.splice('_images', img, 1 );
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
       }
     },
@@ -258,10 +257,11 @@ Example:
           description: image.description,
           isDefault: image.isDefault || false,
           tags: image.tags || [],
-          url: 'http://804edaf5c020a1ea3941-18408fe89fb11097c2769b26e979f623.r31.cf1.rackcdn.com/' + image.url,
+          url: image.url,
           sortOrder: image.sortOrder || 0
         }
       });
+      this.fire('images-loaded');
     },
     /**
      * This method is called when the event 'image-added' is raised from the Manager.
@@ -280,9 +280,20 @@ Example:
         description: image.description,
         isDefault: image.isDefault || false,
         tags: image.tags || [],
-        url: 'http://804edaf5c020a1ea3941-18408fe89fb11097c2769b26e979f623.r31.cf1.rackcdn.com/' + image.url,
+        url: image.url,
         sortOrder: this._images.length
       });
+    },
+    /**
+     * This method is called when the event 'image-removed' is raised from the Manger.
+     * It will contain the id for the image to be removed from the _images Array.
+     * @param {object} data
+     * @param {object} data.detail - Will contain the id of the Image
+     * @private
+     */
+    _imageRemoved: function(data) {
+      var img = _.findIndex(this._images, { id: data.detail });
+      this.splice('_images', img, 1 );
     }
 
   });
