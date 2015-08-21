@@ -65,12 +65,15 @@ describe('<ll-property-images>', function() {
       ]
     };
 
-    element.addEventListener('images-received', function(data) {
+    var validate = function(data) {
       expect(data).to.be.ok;
       expect(data.detail).to.be.instanceof(Array);
       expect(data.detail.length).to.be.eql(3);
+      element.removeEventListener('images-received', validate);
       done();
-    });
+    };
+
+    element.addEventListener('images-received', validate);
 
     manager._handleAll(e, data);
   });
@@ -87,15 +90,18 @@ describe('<ll-property-images>', function() {
       }
     };
 
-    element.addEventListener('image-added', function(data) {
+    var validate = function(data) {
       expect(data).to.be.ok;
       expect(data.detail).to.be.ok;
       expect(data.detail._id).to.be.a('string');
       expect(data.detail.fileName).to.be.a('string');
       expect(data.detail.title).to.be.a('string');
       expect(data.detail.unitId).to.be.a('string');
+      element.removeEventListener('image-added', validate);
       done();
-    });
+    };
+
+    element.addEventListener('image-added', validate);
 
     manager._handleAdd(e, data);
   });
@@ -110,12 +116,15 @@ describe('<ll-property-images>', function() {
       }
     };
 
-    element.addEventListener('image-removed', function(data) {
+    var validate = function(data) {
       expect(data).to.be.ok;
       expect(data.detail).to.be.a('string');
       expect(data.detail).to.be.eql(IMAGE_ID);
+      element.removeEventListener('image-removed', validate);
       done();
-    });
+    };
+
+    element.addEventListener('image-removed', validate);
 
     manager._handleDelete(e, data);
   });

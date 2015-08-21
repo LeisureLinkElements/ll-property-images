@@ -10,8 +10,8 @@ describe('<ll-property-images>', function() {
 
     images = [
       {
-        id: '123',
-        name: 'blah.jpg',
+        _id: '123',
+        fileName: 'blah.jpg',
         title: 'Blah',
         description: 'Blah description',
         isDefault: true,
@@ -19,8 +19,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/600/400',
         sortOrder: 9
       },{
-        id: '1234',
-        name: 'blah1.jpg',
+        _id: '1234',
+        fileName: 'blah1.jpg',
         title: 'Kitchen',
         description: 'This is my awesome kitchen',
         isDefault: false,
@@ -28,8 +28,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/601/400',
         sortOrder: 1
       },{
-        id: '12345',
-        name: 'blah2.jpg',
+        _id: '12345',
+        fileName: 'blah2.jpg',
         title: 'Living Room',
         description: 'This is my Living Room',
         isDefault: false,
@@ -37,8 +37,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/602/400',
         sortOrder: 2
       },{
-        id: '123456',
-        name: 'blah24.jpg',
+        _id: '123456',
+        fileName: 'blah24.jpg',
         title: 'Living Room 2',
         description: 'This is my Living Room again',
         isDefault: false,
@@ -46,8 +46,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/603/400',
         sortOrder: 4
       },{
-        id: '12346',
-        name: 'blah3.jpg',
+        _id: '12346',
+        fileName: 'blah3.jpg',
         title: 'Master Bedroom',
         description: 'This is the master bedroom. It is where the magic happens.',
         isDefault: false,
@@ -55,8 +55,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/604/400',
         sortOrder: 3
       },{
-        id: '12',
-        name: 'blah24d.jpg',
+        _id: '12',
+        fileName: 'blah24d.jpg',
         title: 'Amazing View',
         description: 'View from the back patio',
         isDefault: false,
@@ -64,8 +64,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/605/400',
         sortOrder: 7
       },{
-        id: 'xty7',
-        name: 'moose.jpg',
+        _id: 'xty7',
+        fileName: 'moose.jpg',
         title: 'My Pet Moose',
         description: 'His name is Knuckles',
         isDefault: false,
@@ -73,8 +73,8 @@ describe('<ll-property-images>', function() {
         url: 'http://lorempixel.com/606/400',
         sortOrder: 99
       },{
-        id: 'xty6',
-        name: 'moose.jpg',
+        _id: 'xty6',
+        fileName: 'moose.jpg',
         title: 'My Pet Moose',
         description: 'His name is Knuckles',
         isDefault: false,
