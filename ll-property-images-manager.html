@@ -151,8 +151,9 @@ Example:
      * Makes the image the default image, and fires the event `image-made-default`
      * @param {string} id
      */
-    setAsDefaultImage: function(id) {
-      this.fire('image-made-default', {});
+    setAsDefaultImage: function(image) {
+      this.updateImage(image);
+      this.fire('image-made-default', image);
     },
 
     _buildUrl: function(baseUrl, language, unitId) {

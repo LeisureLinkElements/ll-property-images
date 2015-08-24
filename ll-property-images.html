@@ -148,7 +148,7 @@ Example:
      * @private
      */
     _defaultImageChange: function(e) {
-      this.$.manager.setAsDefaultImage(e.detail.imgId);
+      this.$.manager.setAsDefaultImage(e.detail);
     },
     /**
      * Will iterate over all child ll-property-image tags and call isDirty and then getChanges
@@ -239,9 +239,18 @@ Example:
      */
     _updateSortValues: function() {
       var _imageNodeList = this.querySelectorAll('ll-property-image');
+      var self = this;
       Array.prototype.slice.call(_imageNodeList)
         .forEach(function(item, index) {
-          item.setSortOrder(index);
+          if(item.sortOrder !== index) {
+            var tempImg = {
+              imgId : item.id,
+              sortOrder: index
+            };
+
+            self.$.manager.updateImage(tempImg);
+            item.setSortOrder(index);
+          }
         });
     },
     /**

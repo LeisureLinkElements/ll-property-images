@@ -7,6 +7,9 @@ describe('<ll-property-images>', function() {
 
   beforeEach(function(done) {
     element = fixture('fixture');
+    var manager = element.$.manager;
+
+    sinon.stub(manager, "updateImage").returns({});
 
     images = [
       {
