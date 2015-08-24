@@ -85,17 +85,17 @@ Example:
      * @fires image-added
      * @param {{name: string, title: string, image: fileStream, isDefault: boolean}} image
      */
-    addImage: function(image) {
+    addImage: function(image, index) {
       var ajax = this.$.add;
       var data = new FormData();
 
-      data.append("image", image.file);
-      data.append("title", image.title);
+      data.append('order', (index > 0)? index + 1 : index);
+      data.append('image', image.file);
+      data.append('title', image.title);
       ajax.contentType = null;
       ajax.body = data;
       ajax.generateRequest();
     },
-
     /**
      * The `image-updated` event is fired when an image has been added successfully
      * @event image-updated
@@ -111,7 +111,7 @@ Example:
     updateImage: function(image) {
       var ajax = this.$.update;
 
-      ajax.contentType = "application/json";
+      ajax.contentType = 'application/json';
       ajax.url = this._buildUrlWithId(this.baseUrl, this._language, image.imgId);
       ajax.body = JSON.stringify({
         title: image.title,

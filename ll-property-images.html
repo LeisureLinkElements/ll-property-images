@@ -250,7 +250,7 @@ Example:
      */
     _handleUpload: function(data) {
       var upload = data.detail;
-      this.$.manager.addImage(data.detail);
+      this.$.manager.addImage(data.detail, this._images.length);
 
       this.$.uploader.reset();
     },
@@ -274,7 +274,7 @@ Example:
           description: image.description,
           isDefault: image.isDefault || false,
           url: image.url,
-          sortOrder: image.sortOrder || 0,
+          sortOrder: image.order || 0,
           tags: image.categories || []
         }
       });
