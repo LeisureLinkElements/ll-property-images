@@ -129,5 +129,27 @@ describe('<ll-property-images>', function() {
     manager._handleDelete(e, data);
   });
 
+  it('should fire "image-updated" when _handleUpdate is called from the manager', function(done) {
+
+    var IMAGE_ID = '55d62d7e11e095086408d24a';
+    var e = {};
+    var data = {
+      xhr: {
+        responseURL: BASE_URL + '/images/public/v1/en/images/' + IMAGE_ID
+      }
+    };
+
+    var validate = function(data) {
+      expect(data).to.be.ok;
+      expect(data.detail).to.be.a('string');
+      expect(data.detail).to.be.eql(IMAGE_ID);
+      element.removeEventListener('image-updated', validate);
+      done();
+    };
+
+    element.addEventListener('image-updated', validate);
+    manager._handleUpdate(e, data);
+  });
+
 
 });

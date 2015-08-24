@@ -273,10 +273,9 @@ Example:
           title: image.title,
           description: image.description,
           isDefault: image.isDefault || false,
-          tags: image.tags || [],
           url: image.url,
           sortOrder: image.sortOrder || 0,
-          tags: image.categories
+          tags: image.categories || []
         }
       });
       this.fire('images-loaded');
@@ -313,7 +312,13 @@ Example:
       var img = _.findIndex(this._images, { _id: data.detail });
       this.splice('_images', img, 1);
     },
-
+    /**
+     * This metho is called when the event 'image-updated' is raised from the manager.
+     * It will contain the id of the image on data.detail'.
+     * We need to find the Image by Id, and reset its Dirty status.
+     * @param data
+     * @private
+     */
     _imageUpdated: function(data) {
       //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
