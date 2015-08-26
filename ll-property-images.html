@@ -33,7 +33,7 @@ Example:
 
   <template>
 
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://images-api.ka">
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="[[baseUrl]]">
     </ll-property-images-manager>
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
 
@@ -105,6 +105,10 @@ Example:
         type: Array,
         notify: true,
         value: []
+      },
+      baseUrl: {
+        type: String,
+        value: 'http://images-api.ka'
       }
     },
 
@@ -260,8 +264,6 @@ Example:
     _handleUpload: function(data) {
       var upload = data.detail;
       this.$.manager.addImage(data.detail, this._images.length);
-
-      this.$.uploader.reset();
     },
     /**
      * This method is called when the event 'images-received' is raised from the Manager.
@@ -309,6 +311,8 @@ Example:
         url: image.url,
         sortOrder: this._images.length
       });
+
+      this.$.uploader.reset();
     },
     /**
      * This method is called when the event 'image-removed' is raised from the Manger.

@@ -20,7 +20,7 @@
     "/demo/"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.0.0",
+    "polymer": "Polymer/polymer#^1.1.0",
     "ll-theme": "LeisureLinkElements/ll-theme",
     "ll-property-image": "LeisureLinkElements/ll-property-image",
     "iron-ajax": "PolymerElements/iron-ajax#~1.0.3",
