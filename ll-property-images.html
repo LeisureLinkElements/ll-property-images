@@ -25,30 +25,36 @@ Example:
       text-align: right;
       padding-right: 15px;
     }
+
+    #confirmation {
+      min-height: 170px;
+    }
   </style>
 
   <template>
 
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="http://localhost:3000">
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="[[baseUrl]]">
     </ll-property-images-manager>
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
-    <div class="row save-changes">
-      <button class="btn btn-primary" on-tap="getChangedImages">Save Changes</button>
-    </div>
+
     <div class="row" id="row">
       <template id="item-list" is="dom-repeat" items="{{_images}}" sort="_sort">
         <ll-property-image
-          id="{{item.id}}"
-          img-id="{{item.id}}"
-          name="{{item.name}}"
+          id="{{item._id}}"
+          img-id="{{item._id}}"
+          name="{{item.fileName}}"
           title="{{item.title}}"
           description="{{item.description}}"
           src="{{item.url}}"
-          is-default-image$="{{item.isDefaultImage}}"
+          is-default="{{item.isDefault}}"
           tags="{{item.tags}}"
           sort-order="{{item.sortOrder}}">
         </ll-property-image>
       </template>
+    </div>
+
+    <div class="row save-changes">
+      <button class="btn btn-primary" on-tap="_updateChangedImages">Save Changes</button>
     </div>
 
     <paper-dialog id="confirmation" modal>
@@ -76,7 +82,11 @@ Example:
       'll-property-image-delete': '_imageDeleted',
       'll-property-image-default': '_defaultImageChange',
       'iron-overlay-closed': '_dialogClosed',
-      'll-property-image-drag': '_dragDropped'
+      'll-property-image-drag': '_dragDropped',
+      'images-received': '_imagesReceived',
+      'image-added': '_imageAdded',
+      'image-removed': '_imageRemoved',
+      'image-updated': '_imageUpdated'
     },
 
     properties: {
@@ -89,18 +99,27 @@ Example:
       /**
        * The property images
        *
-       * @type {[{id: string, title: string, description: string, isDefault: boolean, url: string}]}
+       * @type {[{_id: string, title: string, description: string, isDefault: boolean, url: string}]}
        */
       _images: {
         type: Array,
-        notify: true
+        notify: true,
+        value: []
+      },
+      baseUrl: {
+        type: String,
+        value: 'http://images-api.ka'
       }
     },
 
-    ready: function() {
-      this.$.manager.getImages();
-      var _this = this;
+    /**
+     * This event is fired when the components ready lifecycle event if triggered
+     * @event ll-property-images-ready
+     */
 
+    ready: function() {
+      this.fire('ll-property-images-ready');
+      var _this = this;
       window.onbeforeunload = function() {
         var unsaved = _this.getChangedImages();
         if (unsaved.length !== 0) {
@@ -137,7 +156,13 @@ Example:
      * @private
      */
     _defaultImageChange: function(e) {
-      this.$.manager.setAsDefaultImage(e.detail.imgId);
+      this.$.manager.setAsDefaultImage(e.detail);
+    },
+    /**
+     * Tells the component to load the images.
+     */
+    loadImages: function() {
+      this.$.manager.getImages();
     },
     /**
      * Will iterate over all child ll-property-image tags and call isDirty and then getChanges
@@ -158,6 +183,22 @@ Example:
         });
       return _changedImages;
     },
+
+    /**
+     * This event is triggered when all of the requests for manager.updateImage() have been sent (started from the 'Save Changes' button). It is possible to get this event even if one of the update requests fails.
+     * @event images-updated
+     */
+
+    _updateChangedImages: function() {
+      var images = this.getChangedImages();
+
+      var self = this;
+      images.forEach(function(image) {
+        self.$.manager.updateImage(image);
+      });
+
+      this.fire('images-updated');
+    },
     /**
      * Called when the Delete confirmation modal is closed.
      * If the modal was confirmed, we will ask the manager to delete the image.
@@ -166,8 +207,6 @@ Example:
      */
     _dialogClosed: function(e) {
       if (e && e.detail && e.detail.confirmed) {
-//      var img = _.findIndex(this._images, { id: this.$.confirmation.getAttribute('img-id') });
-//      this.splice('_images', img, 1 );
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
       }
     },
@@ -220,20 +259,112 @@ Example:
      */
     _updateSortValues: function() {
       var _imageNodeList = this.querySelectorAll('ll-property-image');
+      var self = this;
       Array.prototype.slice.call(_imageNodeList)
         .forEach(function(item, index) {
-          item.setSortOrder(index);
+          if(item.sortOrder !== index) {
+            var tempImg = {
+              imgId : item.id,
+              sortOrder: index
+            };
+
+            self.$.manager.updateImage(tempImg);
+            item.setSortOrder(index);
+          }
         });
     },
     /**
      * Handles the ll-property-uploader `upload` event
      * @private
      */
-    _handleUpload: function(e) {
-      var upload = e.detail;
-      console.log(upload);
+    _handleUpload: function(data) {
+      var upload = data.detail;
+      this.$.manager.addImage(data.detail, this._images.length);
+    },
+
+    /**
+     * This event is raised after the images array has been received from the Manager. This indicates that the component has iterated over the response, and updated the formatting/default values for each item in the array.
+     * @event images-loaded
+     */
+
+    /**
+     * This method is called when the event 'images-received' is raised from the Manager.
+     * It will contain the array of the images that needs to be displayed.
+     * @param {Object} data
+     * @param {Array} data.detail - The Array of Images
+     * @private
+     */
+    _imagesReceived: function(data) {
+      if (!data || !data.detail) {
+        return;
+      }
+
+      this._images = data.detail.map(function(image) {
+        return {
+          _id: image._id,
+          fileName: image.fileName,
+          title: image.title,
+          description: image.description,
+          isDefault: image.isDefault || false,
+          url: image.url,
+          sortOrder: image.order || 0,
+          tags: image.categories || []
+        }
+      });
+      this.fire('images-loaded');
+    },
+    /**
+     * This method is called when the event 'image-added' is raised from the Manager.
+     * It will contain an object with the data for the image that needs to be added.
+     * @param {Object} data
+     * @param {Object} data.detail
+     * @private
+     */
+    _imageAdded: function(data) {
+      var image = data.detail;
+
+      this.push('_images', {
+        _id: image._id,
+        fileName: image.fileName,
+        title: image.title,
+        description: image.description,
+        isDefault: image.isDefault || false,
+        tags: image.tags || [],
+        url: image.url,
+        sortOrder: this._images.length
+      });
 
       this.$.uploader.reset();
+    },
+    /**
+     * This method is called when the event 'image-removed' is raised from the Manger.
+     * It will contain the id for the image to be removed from the _images Array.
+     * @param {object} data
+     * @param {object} data.detail - Will contain the id of the Image
+     * @private
+     */
+    _imageRemoved: function(data) {
+      var img = _.findIndex(this._images, { _id: data.detail });
+      this.splice('_images', img, 1);
+    },
+    /**
+     * This metho is called when the event 'image-updated' is raised from the manager.
+     * It will contain the id of the image on data.detail'.
+     * We need to find the Image by Id, and reset its Dirty status.
+     * @param data
+     * @private
+     */
+    _imageUpdated: function(data) {
+      //We need to get the NodeList object, convert it to an array (so we can loop)
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+
+      Array.prototype.slice.call(_imageNodeList)
+        .filter(function(image) {
+          return image.id == data.detail
+        })
+        .forEach(function(image) {
+          image.resetDirtyStatus()
+        });
     }
 
   });

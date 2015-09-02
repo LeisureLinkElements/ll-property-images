@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
+<script type="application/javascript" src="../lodash/lodash.js"></script>
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -13,9 +15,9 @@ Example:
 <dom-module id="ll-property-images-manager">
   <template>
     <iron-ajax id="all" url="{{_allUrl}}" handle-as="json" on-response="_handleAll"></iron-ajax>
-    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST"></iron-ajax>
-    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT"></iron-ajax>
-    <iron-ajax id="delete" handle-as="json" on-response="_handleDelete" method="DELETE"></iron-ajax>
+    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST" on-error="_handleAjaxError"></iron-ajax>
+    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT" on-error="_handleAjaxError"></iron-ajax>
+    <iron-ajax id="delete" handle-as="text" on-response="_handleDelete" method="DELETE" on-error="_handleAjaxError"></iron-ajax>
   </template>
 </dom-module>
 
@@ -83,12 +85,17 @@ Example:
      * @fires image-added
      * @param {{name: string, title: string, image: fileStream, isDefault: boolean}} image
      */
-    addImage: function(image) {
+    addImage: function(image, index) {
       var ajax = this.$.add;
-      ajax.body = JSON.stringify(image);
+      var data = new FormData();
+
+      data.append('order', (index > 0)? index + 1 : index);
+      data.append('image', image.file);
+      data.append('title', image.title);
+      ajax.contentType = null;
+      ajax.body = data;
       ajax.generateRequest();
     },
-
     /**
      * The `image-updated` event is fired when an image has been added successfully
      * @event image-updated
@@ -103,8 +110,16 @@ Example:
      */
     updateImage: function(image) {
       var ajax = this.$.update;
-      ajax.url = this._buildUrlWithId(image.id);
-      ajax.body = JSON.stringify(image);
+
+      ajax.contentType = 'application/json';
+      ajax.url = this._buildUrlWithId(this.baseUrl, this._language, image.imgId);
+      ajax.body = JSON.stringify({
+        title: image.title,
+        description: image.description,
+        isDefault: image.isDefault,
+        order: image.sortOrder,
+        categories: image.tags
+      });
       ajax.generateRequest();
     },
 
@@ -121,7 +136,7 @@ Example:
      */
     deleteImage: function(id) {
       var ajax = this.$.delete;
-      ajax.url = this._buildUrlWithId(id);
+      ajax.url = this._buildUrlWithId(this.baseUrl, this._language, id);
       ajax.generateRequest();
     },
 
@@ -136,32 +151,39 @@ Example:
      * Makes the image the default image, and fires the event `image-made-default`
      * @param {string} id
      */
-    setAsDefaultImage: function(id) {
-      this.fire('image-made-default', {});
+    setAsDefaultImage: function(image) {
+      this.updateImage(image);
+      this.fire('image-made-default', image);
     },
 
     _buildUrl: function(baseUrl, language, unitId) {
-      return baseUrl + '/images/v1/' + language + '/units/' + unitId + '/images';
+      return baseUrl + '/images-api/public/v1/' + language + '/units/' + unitId + '/images';
     },
 
-    _buildUrlWithId: function(id) {
-      return this._buildUrl() + '/' + id;
+    _buildUrlWithId: function(baseUrl, language, id) {
+      return baseUrl+ '/images-api/public/v1/' + language + '/images/' + id
     },
 
-    _handleAll: function() {
-      this.fire('images-received', []);
+
+    _handleAll: function(e, detail) {
+      this.fire('images-received', detail.response);
     },
 
-    _handleAdd: function() {
-      this.fire('image-added', {});
+    _handleAdd: function(e, detail) {
+      this.fire('image-added', detail.response);
     },
 
-    _handleUpdate: function() {
-      this.fire('image-updated', {});
+    _handleUpdate: function(e, detail) {
+      var id = _.last(detail.xhr.responseURL.split('/'));
+      this.fire('image-updated', id);
     },
 
-    _handleDelete: function() {
-      this.fire('image-removed', {});
+    _handleDelete: function(e, detail) {
+      var id = _.last(detail.xhr.responseURL.split('/'));
+      this.fire('image-removed', id);
+    },
+    _handleAjaxError: function(e, detail) {
+      this.fire('image-action-failed', detail.error);
     }
 
   });
