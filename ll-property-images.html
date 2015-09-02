@@ -112,6 +112,11 @@ Example:
       }
     },
 
+    /**
+     * This event is fired when the components ready lifecycle event if triggered
+     * @event ll-property-images-ready
+     */
+
     ready: function() {
       this.fire('ll-property-images-ready');
       var _this = this;
@@ -178,6 +183,12 @@ Example:
         });
       return _changedImages;
     },
+
+    /**
+     * This event is triggered when all of the requests for manager.updateImage() have been sent (started from the 'Save Changes' button). It is possible to get this event even if one of the update requests fails.
+     * @event images-updated
+     */
+
     _updateChangedImages: function() {
       var images = this.getChangedImages();
 
@@ -270,6 +281,12 @@ Example:
       var upload = data.detail;
       this.$.manager.addImage(data.detail, this._images.length);
     },
+
+    /**
+     * This event is raised after the images array has been received from the Manager. This indicates that the component has iterated over the response, and updated the formatting/default values for each item in the array.
+     * @event images-loaded
+     */
+
     /**
      * This method is called when the event 'images-received' is raised from the Manager.
      * It will contain the array of the images that needs to be displayed.
