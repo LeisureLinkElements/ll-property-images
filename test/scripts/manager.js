@@ -30,14 +30,14 @@ describe('<ll-property-images>', function() {
     var language = 'en';
     var unitId = "123445";
     var url = manager._buildUrl(BASE_URL, language, unitId);
-    expect(url).to.be.eql(BASE_URL + '/images/public/v1/en/units/123445/images');
+    expect(url).to.be.eql(BASE_URL + '/images-api/public/v1/en/units/123445/images');
   });
 
   it('should be able to build the URL for property level edits', function() {
     var language = 'en';
     var unitId = "123445";
     var url = manager._buildUrlWithId(BASE_URL, language, unitId);
-    expect(url).to.be.eql(BASE_URL + '/images/public/v1/en/images/123445');
+    expect(url).to.be.eql(BASE_URL + '/images-api/public/v1/en/images/123445');
   });
 
   it('should fire "images-received" when _handleAll is called from the manager', function(done) {
@@ -112,7 +112,7 @@ describe('<ll-property-images>', function() {
     var e = {};
     var data = {
       xhr: {
-        responseURL: BASE_URL + '/images/public/v1/en/images/' + IMAGE_ID
+        responseURL: BASE_URL + '/images-api/public/v1/en/images/' + IMAGE_ID
       }
     };
 
@@ -135,7 +135,7 @@ describe('<ll-property-images>', function() {
     var e = {};
     var data = {
       xhr: {
-        responseURL: BASE_URL + '/images/public/v1/en/images/' + IMAGE_ID
+        responseURL: BASE_URL + '/images-api/public/v1/en/images/' + IMAGE_ID
       }
     };
 

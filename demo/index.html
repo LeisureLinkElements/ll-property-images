@@ -79,6 +79,11 @@
       ];
     });
 
+    document.addEventListener('WebComponentsReady', function() {
+      var propertyImages = document.querySelector('ll-property-images');
+      propertyImages.loadImages();
+    });
+
   </script>
   </body>
 </html>

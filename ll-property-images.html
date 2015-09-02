@@ -113,9 +113,7 @@ Example:
     },
 
     ready: function() {
-      this.$.manager.getImages();
       var _this = this;
-
       window.onbeforeunload = function() {
         var unsaved = _this.getChangedImages();
         if (unsaved.length !== 0) {
@@ -153,6 +151,12 @@ Example:
      */
     _defaultImageChange: function(e) {
       this.$.manager.setAsDefaultImage(e.detail);
+    },
+    /**
+     * Tells the component to load the images.
+     */
+    loadImages: function() {
+      this.$.manager.getImages();
     },
     /**
      * Will iterate over all child ll-property-image tags and call isDirty and then getChanges
