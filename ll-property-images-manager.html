@@ -115,7 +115,7 @@ Example:
       ajax.url = this._buildUrlWithId(this.baseUrl, this._language, image.imgId);
       ajax.body = JSON.stringify({
         title: image.title,
-        description: image.description,
+        description: image.description  || '',
         isDefault: image.isDefault,
         order: image.sortOrder,
         categories: image.tags,
