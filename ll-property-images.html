@@ -265,7 +265,11 @@ Example:
           if(item.sortOrder !== index) {
             var tempImg = {
               imgId : item.id,
-              sortOrder: index
+              sortOrder: index,
+              fileName: item.name,
+              title: item.title,
+              tags: item.tags,
+              isDefault: item.isDefault
             };
 
             self.$.manager.updateImage(tempImg);
