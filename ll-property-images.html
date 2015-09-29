@@ -26,16 +26,42 @@ Example:
       padding-right: 15px;
     }
 
+    .save-changes .btn-link {
+      margin-right: 15px;
+    }
+
     #confirmation {
       min-height: 170px;
+    }
+
+    .view-header hr{
+      clear: both;
+    }
+    .view-header button {
+      margin-bottom: 20px;
+    }
+    :host.readOnly .view-header button {
+      display: none;
+    }
+
+    .save-changes {
+      display: none;
+    }
+    :host.readOnly .save-changes {
+      display: block;
     }
   </style>
 
   <template>
 
+    <div class="view-header">
+      <span class="pull-left">Property Photos</span>
+      <button id="edit-photos" class="btn btn-default pull-right" on-tap="_enterEditMode">Edit Photos</button>
+      <hr/>
+    </div>
+
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="[[baseUrl]]">
     </ll-property-images-manager>
-    <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
 
     <div class="row" id="row">
       <template id="item-list" is="dom-repeat" items="{{_images}}" sort="_sort">
@@ -48,12 +74,18 @@ Example:
           src="{{item.url}}"
           is-default="{{item.isDefault}}"
           tags="{{item.tags}}"
-          sort-order="{{item.sortOrder}}">
+          sort-order="{{item.sortOrder}}"
+          read-only="{{readOnly}}">
         </ll-property-image>
       </template>
     </div>
 
+    <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
+
+    <hr/>
+
     <div class="row save-changes">
+      <button class="btn btn-link" on-tap="_exitEditMode">Cancel</button>
       <button class="btn btn-primary" on-tap="_updateChangedImages">Save Changes</button>
     </div>
 
@@ -109,6 +141,11 @@ Example:
       baseUrl: {
         type: String,
         value: 'http://images-api.ka'
+      },
+      readOnly: {
+        type: Boolean,
+        value: true,
+        observer: '_handleReadOnlyChange'
       }
     },
 
@@ -173,7 +210,6 @@ Example:
     getChangedImages: function() {
       //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
-
       var _changedImages = Array.prototype.slice.call(_imageNodeList)
         .filter(function(image) {
           return image.isDirty()
@@ -198,6 +234,7 @@ Example:
       });
 
       this.fire('images-updated');
+      this.readOnly = true;
     },
     /**
      * Called when the Delete confirmation modal is closed.
@@ -339,6 +376,7 @@ Example:
       });
 
       this.$.uploader.reset();
+      this._setEditVisibility();
     },
     /**
      * This method is called when the event 'image-removed' is raised from the Manger.
@@ -350,9 +388,10 @@ Example:
     _imageRemoved: function(data) {
       var img = _.findIndex(this._images, { _id: data.detail });
       this.splice('_images', img, 1);
+      this._setEditVisibility();
     },
     /**
-     * This metho is called when the event 'image-updated' is raised from the manager.
+     * This method is called when the event 'image-updated' is raised from the manager.
      * It will contain the id of the image on data.detail'.
      * We need to find the Image by Id, and reset its Dirty status.
      * @param data
@@ -369,6 +408,52 @@ Example:
         .forEach(function(image) {
           image.resetDirtyStatus()
         });
+    },
+    /**
+     * This will update the ReadOnly class on the element.
+     * @private
+     */
+    _handleReadOnlyChange: function(newVal) {
+      this.toggleClass('readOnly', !newVal, this);
+    },
+    /**
+     * @private
+     */
+    _enterEditMode: function() {
+      this.readOnly = false;
+    },
+    /**
+     * Cancel Exit Mode.
+     * Will Exit out of Edit mode,
+     * iterate over all of the ll-property-image elements and reset their values.
+     * @private
+     */
+    _exitEditMode: function() {
+      this.readOnly = true;
+
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+
+      Array.prototype.slice.call(_imageNodeList)
+        .filter(function(image) {
+          return image.isDirty();
+        })
+        .map(function(image) {
+          return image.resetFields();
+        });
+
+    },
+    /**
+     * This checks to see if the _images array is empty, and if so will exit edit mode and set the visibility on the Edit button.
+     * @private
+     */
+    _setEditVisibility: function() {
+      var hasImages = (this._images.length > 0);
+
+      if(!hasImages) {
+        this._exitEditMode();
+      }
+
+      this.toggleClass('hidden', (!hasImages), this.$['edit-photos'])
     }
 
   });
