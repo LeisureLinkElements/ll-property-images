@@ -152,4 +152,20 @@ describe('<ll-property-images>', function() {
     expect(_item.sortOrder).to.be.eql(0);
     expect(_target.sortOrder).to.be.eql(1);
   });
+
+
+  it('should update the tags but \'_tags\' should not be set in relationship to \'tags\'', function() {
+    element.tags = ['Rufus', 'Garfield', 'Beavis'];
+    element._tags = ['Rufus', 'Garfield'];
+    expect(element.tags).to.have.length(3);
+    expect(element._tags).to.have.length(2);
+
+    resetFields();
+
+    expect(element.tags).to.have.length(3);
+    expect(element._tags).to.have.length(3);
+
+    expect(element.tags).to.not.equal(element._tags);
+  });
+
 });

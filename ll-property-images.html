@@ -20,6 +20,12 @@ Example:
 <dom-module id="ll-property-images">
 
   <style>
+
+    ll-property-images {
+      top: -40px;
+      position: relative;
+    }
+
     .save-changes {
       padding-bottom: 15px;
       text-align: right;
@@ -30,15 +36,44 @@ Example:
       margin-right: 15px;
     }
 
-    #confirmation {
+    #confirmation, #confirmDefault {
       min-height: 170px;
+      top: 150px;
     }
 
+    #confirmDefault .btn-destructive {
+      margin-left: 15px;
+      background-color: #72ff82;
+      border-color: #72ff82;
+      color: #009900;
+    }
+
+    #confirmDefault .btn-destructive:hover {
+      background-color: #62c663;
+      border-color: #62c663;
+    }
+    #row {
+      top: -40px;
+      position: relative;
+    }
     .view-header hr{
       clear: both;
+      border-top: 2px solid #d7d7d7;
+    }
+    hr {
+      top: -40px;
+      position: relative;
+    }
+    .btn-default {
+      font-size: 1.4rem;
+      padding:0 20px;
     }
     .view-header button {
+      position: relative;
       margin-bottom: 20px;
+      top: 28px;
+      right: 160px;
+      height: 45px;
     }
     :host.readOnly .view-header button {
       display: none;
@@ -50,15 +85,47 @@ Example:
     :host.readOnly .save-changes {
       display: block;
     }
+    #uploader {
+
+    }
+    .title {
+      top: 14px;
+      position: relative;
+    }
+
+    .title h3 {
+      font-size: 3rem;
+    }
+
+    #confirmation {
+      text-align: center;
+      border: 4px solid #9c4755;
+    }
+
+    #confirmDefault {
+      border: 4px solid #0069AA;
+    }
+
+    #confirmDefault .btn-primary {
+      border-color: #004774;
+    }
+    #confirmDefault .btn-primary, #confirmation .btn-primary{
+      margin-left: 10px;
+    }
+
+    #confirmDefault .btn-link, #confirmation .btn-link{
+      margin-right: 10px;
+    }
   </style>
 
   <template>
 
     <div class="view-header">
-      <span class="pull-left">Property Photos</span>
-      <button id="edit-photos" class="btn btn-default pull-right" on-tap="_enterEditMode">Edit Photos</button>
-      <hr/>
+      <span class="title pull-left"><h3>Property Photos</h3></span>
+      <button id="edit-photos" class="btn btn-default pull-right" on-tap="_enterEditMode">Edit Information</button>
     </div>
+    <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
+    <hr/>
 
     <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="[[baseUrl]]">
     </ll-property-images-manager>
@@ -80,8 +147,6 @@ Example:
       </template>
     </div>
 
-    <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
-
     <hr/>
 
     <div class="row save-changes">
@@ -90,14 +155,27 @@ Example:
     </div>
 
     <paper-dialog id="confirmation" modal>
-      <h4>Delete image?</h4>
+      <h4>DELETE IMAGE</h4>
 
       <div>
         Are you sure you would like to delete this image?
       </div>
-      <div style="text-align: right;">
-        <button class="btn btn-default" dialog-dismiss>Cancel</button>
+      <div>
+        <button class="btn btn-link" dialog-dismiss>Cancel</button>
         <button class="btn btn-destructive" dialog-confirm autofocus>Delete Image</button>
+      </div>
+    </paper-dialog>
+
+
+    <paper-dialog id="confirmDefault" modal>
+      <h4>SET DEFAULT IMAGE</h4>
+
+      <div>
+        Set this image as the default image?
+      </div>
+      <div style="text-align: right;">
+        <button class="btn btn-link" dialog-dismiss>Cancel</button>
+        <button class="btn btn-primary" dialog-confirm autofocus>Set as Default</button>
       </div>
     </paper-dialog>
   </template>
@@ -118,7 +196,8 @@ Example:
       'images-received': '_imagesReceived',
       'image-added': '_imageAdded',
       'image-removed': '_imageRemoved',
-      'image-updated': '_imageUpdated'
+      'image-updated': '_imageUpdated',
+      'image-made-default': '_updateViewForDefaultImage'
     },
 
     properties: {
@@ -146,6 +225,13 @@ Example:
         type: Boolean,
         value: true,
         observer: '_handleReadOnlyChange'
+      },
+      /**
+       * value is the id of the current default image
+       */
+      currentDefaultImage: {
+        type: Object,
+        value: {}
       }
     },
 
@@ -186,14 +272,23 @@ Example:
       _itemToDelete = e.detail.imgId;
       this.$.confirmation.open();
       this.$.confirmation.setAttribute('img-id', e.detail.imgId);
+      dialogClosedEvent = 'deleteImage';
     },
     /**
-     * Fired when it received the ll-property-image-default event
+     * Fired when it receives the ll-property-image-default event
      * Will call the manager to set the image as the default property image.
      * @private
      */
-    _defaultImageChange: function(e) {
-      this.$.manager.setAsDefaultImage(e.detail);
+    _defaultImageChange: function(image) {
+      this.$.confirmDefault.open();
+      this.$.confirmDefault.setAttribute('img-id', image.detail.imgId);
+      this.$.confirmDefault.setAttribute('isDefault', image.detail.isDefault);
+      this.$.confirmDefault.setAttribute('file-name', image.detail.name);
+      this.$.confirmDefault.setAttribute('title', image.detail.title);
+      this.$.confirmDefault.setAttribute('description', image.detail.description);
+      this.$.confirmDefault.setAttribute('order', image.detail.sortOrder);
+      this.$.confirmDefault.setAttribute('categories', image.detail.tags);
+      dialogClosedEvent = 'confirmDefault';
     },
     /**
      * Tells the component to load the images.
@@ -242,11 +337,25 @@ Example:
      *
      * @private
      */
+
     _dialogClosed: function(e) {
-      if (e && e.detail && e.detail.confirmed) {
+      var _this = this;
+      if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'deleteImage') {
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
+      } else if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'confirmDefault') {
+        var newDefaultImage = {};
+        newDefaultImage.isDefault = true;
+        newDefaultImage.imgId = this.$.confirmDefault.getAttribute('img-id');
+        newDefaultImage.fileName = this.$.confirmDefault.getAttribute('file-name');
+        newDefaultImage.description = this.$.confirmDefault.getAttribute('description');
+        newDefaultImage.categories = this.$.confirmDefault.getAttribute('categories');
+        newDefaultImage.title = this.$.confirmDefault.getAttribute('title');
+        newDefaultImage.order = this.$.confirmDefault.getAttribute('order');
+        this.$.manager.setAsDefaultImage(newDefaultImage, _this.currentDefaultImage);
       }
+      this.currentDefaultImage.isDefault = true;
     },
+
     /**
      * Sorts the initial list of returned images by the image sortOrder property.
      * @private
@@ -336,10 +445,11 @@ Example:
      * @private
      */
     _imagesReceived: function(data) {
+      console.log('images array data', data);
       if (!data || !data.detail) {
         return;
       }
-
+      this._setDefaultImage(data);
       this._images = data.detail.map(function(image) {
         return {
           _id: image._id,
@@ -354,6 +464,28 @@ Example:
       });
       this.fire('images-loaded');
     },
+
+    /**
+     * sets up the initial default image, called by _imagesReceived(), which is invoked by the ready() event
+     * @param {Object} data - an array of objects for each image
+     */
+    _setDefaultImage: function(data) {
+      for (var i = 0; i < data.detail.length; i++) {
+        if(data.detail[i].isDefault === true) {
+          var newDefaultImage = {
+              imgId: data.detail[i]._id,
+              fileName: data.detail[i].fileName,
+              title: data.detail[i].title || '',
+              description: data.detail[i].description || '',
+              isDefault: data.detail[i].isDefault,
+              order: data.detail[i].order,
+              categories: data.detail[i].tags || []
+          };
+          return this.currentDefaultImage = newDefaultImage;
+        }
+      }
+    },
+
     /**
      * This method is called when the event 'image-added' is raised from the Manager.
      * It will contain an object with the data for the image that needs to be added.
@@ -409,6 +541,22 @@ Example:
           image.resetDirtyStatus()
         });
     },
+
+    _updateViewForDefaultImage: function (data) {
+      var oldDefaultId = data.detail[0].imgId;
+      var newDefaultId = data.detail[1].imgId;
+      var _imageNodeList = this.querySelectorAll('ll-property-image');
+
+      Array.prototype.slice.call(_imageNodeList)
+        .filter(function(image) {
+          return image.id = data.detail
+        })
+        .forEach(function(image) {
+          if(image.imgId === oldDefaultId || image.imgId === newDefaultId){
+            image.isDefault = !image.isDefault;
+          }
+        });
+    },
     /**
      * This will update the ReadOnly class on the element.
      * @private
@@ -452,8 +600,7 @@ Example:
       if(!hasImages) {
         this._exitEditMode();
       }
-
-      this.toggleClass('hidden', (!hasImages), this.$['edit-photos'])
+      this.toggleClass('hidden', (!hasImages), this.$['edit-photos']);
     }
 
   });

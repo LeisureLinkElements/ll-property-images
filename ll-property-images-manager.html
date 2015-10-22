@@ -52,7 +52,10 @@ Example:
       _language: { type: String, readOnly: true, value: 'en' }
 
     },
+    
+    //images-api.leisurelink.ka/images-api/public/v1/en/images/undefined:1 PUT http://images-api.leisurelink.ka/images-api/public/v1/en/images/undefined 500 (Internal Server Error) 
 
+    
     ready: function() {
       console.log('ready');
     },
@@ -150,11 +153,17 @@ Example:
 
     /**
      * Makes the image the default image, and fires the event `image-made-default`
-     * @param {string} id
+     * @param {string} newDefaultImage
+     * @param {string} oldDefaultImage
      */
-    setAsDefaultImage: function(image) {
-      this.updateImage(image);
-      this.fire('image-made-default', image);
+    setAsDefaultImage: function(newDefaultImage, oldDefaultImage) {
+      console.log('setAsDefaultImage mgr (newDefaultImage)', newDefaultImage);
+      console.log('oldDefaultImage', oldDefaultImage);
+      oldDefaultImage.isDefault = false;
+      this.updateImage(newDefaultImage);
+      this.updateImage(oldDefaultImage);
+      var imageIdsToUpdate = [oldDefaultImage, newDefaultImage];
+      this.fire('image-made-default', imageIdsToUpdate);
     },
 
     _buildUrl: function(baseUrl, language, unitId) {
