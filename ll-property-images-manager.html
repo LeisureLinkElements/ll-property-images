@@ -52,10 +52,7 @@ Example:
       _language: { type: String, readOnly: true, value: 'en' }
 
     },
-    
-    //images-api.leisurelink.ka/images-api/public/v1/en/images/undefined:1 PUT http://images-api.leisurelink.ka/images-api/public/v1/en/images/undefined 500 (Internal Server Error) 
 
-    
     ready: function() {
       console.log('ready');
     },
@@ -146,24 +143,22 @@ Example:
 
 
     /**
-     * The `image-made-default` event is fired when an image has been set as default successfully
+     * The `image-made-default` event is fired when an image has been set as default successfully.
      * @event image-made-default
      * @detail {[{ id: string, name: string, title: string, url: string, isDefault: boolean }]}
      */
 
     /**
-     * Makes the image the default image, and fires the event `image-made-default`
-     * @param {string} newDefaultImage
-     * @param {string} oldDefaultImage
+     * Makes the image the default image, and fires the event `image-made-default`.
+     * @param {object} newDefaultImage - the data object for the image that will be set to the default
+     * @param {object} oldDefaultImage - the data object for the image that will be removed from the default status
      */
     setAsDefaultImage: function(newDefaultImage, oldDefaultImage) {
-      console.log('setAsDefaultImage mgr (newDefaultImage)', newDefaultImage);
-      console.log('oldDefaultImage', oldDefaultImage);
       oldDefaultImage.isDefault = false;
       this.updateImage(newDefaultImage);
       this.updateImage(oldDefaultImage);
-      var imageIdsToUpdate = [oldDefaultImage, newDefaultImage];
-      this.fire('image-made-default', imageIdsToUpdate);
+      var imageData = [oldDefaultImage, newDefaultImage];
+      this.fire('image-made-default', imageData);
     },
 
     _buildUrl: function(baseUrl, language, unitId) {

@@ -197,7 +197,7 @@ Example:
       'image-added': '_imageAdded',
       'image-removed': '_imageRemoved',
       'image-updated': '_imageUpdated',
-      'image-made-default': '_updateViewForDefaultImage'
+      'image-made-default': 'dataUpdateDefaultImageView'
     },
 
     properties: {
@@ -353,7 +353,7 @@ Example:
         newDefaultImage.order = this.$.confirmDefault.getAttribute('order');
         this.$.manager.setAsDefaultImage(newDefaultImage, _this.currentDefaultImage);
       }
-      this.currentDefaultImage.isDefault = true;
+      this.currentDefaultImage = newDefaultImage;
     },
 
     /**
@@ -445,7 +445,6 @@ Example:
      * @private
      */
     _imagesReceived: function(data) {
-      console.log('images array data', data);
       if (!data || !data.detail) {
         return;
       }
@@ -522,9 +521,10 @@ Example:
       this.splice('_images', img, 1);
       this._setEditVisibility();
     },
+
     /**
      * This method is called when the event 'image-updated' is raised from the manager.
-     * It will contain the id of the image on data.detail'.
+     * It will contain the id of the image on 'data.detail'.
      * We need to find the Image by Id, and reset its Dirty status.
      * @param data
      * @private
@@ -542,21 +542,46 @@ Example:
         });
     },
 
-    _updateViewForDefaultImage: function (data) {
-      var oldDefaultId = data.detail[0].imgId;
-      var newDefaultId = data.detail[1].imgId;
-      var _imageNodeList = this.querySelectorAll('ll-property-image');
-
-      Array.prototype.slice.call(_imageNodeList)
-        .filter(function(image) {
-          return image.id = data.detail
+    /**
+     * call by `dataUpdateDefaultImageView()` and will update the new and old default images on the client side
+     * without needing to refresh the page. (The images have already been updated at this point in the database.)
+     * This fn is separated from `dataUpdateDefaultImageView()` in order to test.
+     * @param {array} imagesToUpdate - passed in when invoked by dataUpdateDefaultImageView
+     * @param {object} imageData - data passed indirectly from `setAsDefaultImage()` in the ll-prop-images-manager via `dataUpdateDefaultImageView()`
+     * @private
+     **/
+    _updateViewForDefaultImage: function (imagesToUpdate, imageData) {
+      var _this = this;
+      imagesToUpdate.nodeListAsArray.filter(function(image) {
+          return image.id = imageData.detail
         })
         .forEach(function(image) {
-          if(image.imgId === oldDefaultId || image.imgId === newDefaultId){
-            image.isDefault = !image.isDefault;
+          if(image.imgId === imagesToUpdate.oldDefaultId){
+            image.isDefault = false;
+          }
+          if(image.imgId === imagesToUpdate.newDefaultId) {
+            image.isDefault = true;
+            _this.currentDefaultImage = image;
           }
         });
     },
+
+    /**
+     * This method is called when the event 'image-made-default' is raised from the manager.
+     * It will contain the ids of the previous and new default images.
+     * We need to find the Image by Id, and toggle each object's 'isDefault' value.
+     * @param {array} imageData - is passed from the manager
+     */
+    dataUpdateDefaultImageView: function(imageData) {
+      var nodeListAsArray = Array.prototype.slice.call(this.querySelectorAll('ll-property-image'));
+      var imagesToUpdate = {
+        oldDefaultId: imageData.detail[0].imgId,
+        newDefaultId: imageData.detail[1].imgId,
+        nodeListAsArray: nodeListAsArray
+      };
+      this._updateViewForDefaultImage(imagesToUpdate, imageData);
+    },
+
     /**
      * This will update the ReadOnly class on the element.
      * @private
@@ -588,7 +613,6 @@ Example:
         .map(function(image) {
           return image.resetFields();
         });
-
     },
     /**
      * This checks to see if the _images array is empty, and if so will exit edit mode and set the visibility on the Edit button.
