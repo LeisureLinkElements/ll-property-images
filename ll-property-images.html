@@ -303,7 +303,6 @@ Example:
      * @public
      */
     getChangedImages: function() {
-      //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
       var _changedImages = Array.prototype.slice.call(_imageNodeList)
         .filter(function(image) {
@@ -448,10 +447,6 @@ Example:
       if (!data || !data.detail) {
         return;
       }
-//      if (image && this._images.length === 0) {
-//        image.isDefault = true;
-//        this.currentDefaultImage = image;
-//      }
       this._setDefaultImage(data);
       this._images = data.detail.map(function(image) {
         return {
@@ -502,8 +497,6 @@ Example:
         image.isDefault = true;
         this.currentDefaultImage = image;
       }
-      console.log('this.currentDefaultImage:\n', this.currentDefaultImage );
-      console.log('image:\n', image );
       this.push('_images', {
         _id: image._id,
         fileName: image.fileName,
@@ -539,7 +532,6 @@ Example:
      * @private
      */
     _imageUpdated: function(data) {
-      //We need to get the NodeList object, convert it to an array (so we can loop)
       var _imageNodeList = this.querySelectorAll('ll-property-image');
 
       Array.prototype.slice.call(_imageNodeList)
