@@ -448,13 +448,17 @@ Example:
       if (!data || !data.detail) {
         return;
       }
+//      if (image && this._images.length === 0) {
+//        image.isDefault = true;
+//        this.currentDefaultImage = image;
+//      }
       this._setDefaultImage(data);
       this._images = data.detail.map(function(image) {
         return {
           _id: image._id,
           fileName: image.fileName,
           title: image.title,
-          description: image.description,
+          description: image.description || '',
           isDefault: image.isDefault || false,
           url: image.url,
           sortOrder: image.order || 0,
@@ -494,7 +498,12 @@ Example:
      */
     _imageAdded: function(data) {
       var image = data.detail;
-
+      if (this._images.length === 0) {
+        image.isDefault = true;
+        this.currentDefaultImage = image;
+      }
+      console.log('this.currentDefaultImage:\n', this.currentDefaultImage );
+      console.log('image:\n', image );
       this.push('_images', {
         _id: image._id,
         fileName: image.fileName,
@@ -570,7 +579,7 @@ Example:
      * This method is called when the event 'image-made-default' is raised from the manager.
      * It will contain the ids of the previous and new default images.
      * We need to find the Image by Id, and toggle each object's 'isDefault' value.
-     * @param {array} imageData - is passed from the manager
+     * @param {array} imageData - an array of objects passed from the manager. it contains the objects for the old and the new default images, in that order.
      */
     dataUpdateDefaultImageView: function(imageData) {
       var nodeListAsArray = Array.prototype.slice.call(this.querySelectorAll('ll-property-image'));
@@ -579,6 +588,9 @@ Example:
         newDefaultId: imageData.detail[1].imgId,
         nodeListAsArray: nodeListAsArray
       };
+      if (nodeListAsArray.length === 2 && imageData.detail[0].imgId === undefined){
+          imagesToUpdate.oldDefaultId = nodeListAsArray[0].imgId;
+      }
       this._updateViewForDefaultImage(imagesToUpdate, imageData);
     },
 
