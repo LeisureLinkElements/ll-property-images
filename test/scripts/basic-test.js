@@ -203,9 +203,7 @@ describe('<ll-property-images>', function() {
 
   });
 
-  it('should check whether currentDefaultImage is not undefined when more than two images exist in NodeList', function() {
-
-    var nodeList = element.querySelectorAll('ll-property-image');
+  it('should, when currentDefaultImage is undefined, check whether currentDefaultImage gets set to newDefaultImage after calling `_currentDefaultImage()`', function() {
 
     var oldDefaultImage = {
       "isDefault": true,
@@ -232,10 +230,21 @@ describe('<ll-property-images>', function() {
         [oldDefaultImage, newDefaultImage]
     };
 
-    if (nodeList > 2 && element.currentDefaultImage === undefined) {
-      element._updateViewForDefaultImage(imagesToUpdate, imageData);
-      expect(element.currentDefaultImage).to.not.equal(undefined);
-    }
+    var nodeListAsArray = [oldDefaultImage, newDefaultImage];
+
+    var imagesToUpdate = {
+      oldDefaultId: imageData.detail[0].imgId,
+      newDefaultId: imageData.detail[1].imgId,
+      nodeListAsArray: nodeListAsArray
+    };
+
+    var currentDefaultImage = undefined;
+
+    expect(currentDefaultImage).to.equal(undefined);
+    element._updateViewForDefaultImage(imagesToUpdate, imageData);
+    expect(currentDefaultImage).to.equal(element.newDefaultImage);
+
+
   });
 
 });
