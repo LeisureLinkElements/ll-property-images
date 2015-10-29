@@ -580,7 +580,7 @@ Example:
         newDefaultId: imageData.detail[1].imgId,
         nodeListAsArray: nodeListAsArray
       };
-      if (imageData.detail[0].imgId === undefined){
+      if(imageData.detail[0].imgId === undefined){
           imagesToUpdate.oldDefaultId = nodeListAsArray[0].imgId;
       }
       this._updateViewForDefaultImage(imagesToUpdate, imageData);

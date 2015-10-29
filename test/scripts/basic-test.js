@@ -206,13 +206,13 @@ describe('<ll-property-images>', function() {
   it('should, when currentDefaultImage is undefined, check whether currentDefaultImage gets set to newDefaultImage after calling `_currentDefaultImage()`', function() {
 
     var oldDefaultImage = {
-      "isDefault": true,
       "imgId": "5626de2ee2af4d41731ceec0",
+      "isDefault": true,
       "fileName": "77733_164312060274756_7884245_o.jpg",
       "description": "here's a boat, kitty",
       "categories": [],
       "title": "a boat",
-      "order": "0"
+      "order": 0
     };
 
     var newDefaultImage = {
@@ -221,7 +221,17 @@ describe('<ll-property-images>', function() {
       "title": "musician",
       "description": "play on, playa",
       "isDefault": false,
-      "order": 0,
+      "order": 1,
+      "categories": []
+    };
+
+    var otherImage = {
+      "imgId": "56291a3bed34778fsdljgnjkb2b",
+      "fileName": "musicians1234.jpg",
+      "title": "musician playa",
+      "description": "play on, playa. tru dat",
+      "isDefault": false,
+      "order": 3,
       "categories": []
     };
 
@@ -230,7 +240,7 @@ describe('<ll-property-images>', function() {
         [oldDefaultImage, newDefaultImage]
     };
 
-    var nodeListAsArray = [oldDefaultImage, newDefaultImage];
+    var nodeListAsArray = [oldDefaultImage, newDefaultImage, otherImage];
 
     var imagesToUpdate = {
       oldDefaultId: imageData.detail[0].imgId,
@@ -238,12 +248,27 @@ describe('<ll-property-images>', function() {
       nodeListAsArray: nodeListAsArray
     };
 
-    var currentDefaultImage = undefined;
+    delete imageData.detail[0].imgId;
 
-    expect(currentDefaultImage).to.equal(undefined);
+    //before running function that switches values
+    expect(imageData.detail[0].isDefault).to.equal(true);  //old default image
+    expect(imageData.detail[1].isDefault).to.equal(false);   //new default image
+
+    // if it's the first time a user has uploaded photos then imageData.detail[0].imgId (passed in from the manager
+    // that's updating the back end, will be undefined. so, we must set imgId of old default to the imgId of the
+    // first index in the nodeList. (We know this is the old default image, bc the first image added is automatically
+    // set to the default image
+    if (imageData.detail[0].imgId === undefined && imagesToUpdate.nodeListAsArray.length > 1) {
+      imagesToUpdate.oldDefaultId = nodeListAsArray[0].imgId;
+    }
+
+    // run the function to update isDefault values
     element._updateViewForDefaultImage(imagesToUpdate, imageData);
-    expect(currentDefaultImage).to.equal(element.newDefaultImage);
 
+    //expect(magic).to.be(true);
+    expect(imagesToUpdate.oldDefault).to.equal(element.newDefaultImage);
+    expect(imageData.detail[0].isDefault).to.equal(false);
+    expect(imageData.detail[1].isDefault).to.equal(true);
 
   });
 
