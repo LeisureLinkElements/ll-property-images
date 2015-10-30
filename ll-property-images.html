@@ -71,7 +71,7 @@ Example:
     .view-header button {
       position: relative;
       margin-bottom: 20px;
-      top: 29px;
+      top: 1px;
       right: 190px;
       height: 45px;
     }
@@ -89,12 +89,14 @@ Example:
 
     }
     .title {
-      top: 14px;
+      /*top: 14px;*/
       position: relative;
     }
 
     .title h3 {
       font-size: 3rem;
+      position: relative;
+      top: -8px;
     }
 
     #confirmation {
@@ -124,6 +126,7 @@ Example:
       <span class="title pull-left"><h3>Property Photos</h3></span>
       <button id="edit-photos" class="btn btn-default pull-right" on-tap="_enterEditMode">Edit Information</button>
     </div>
+
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
     <hr/>
 
