@@ -203,16 +203,16 @@ describe('<ll-property-images>', function() {
 
   });
 
-  it('should, when currentDefaultImage is undefined, check whether currentDefaultImage gets set to newDefaultImage after calling `_currentDefaultImage()`', function() {
+  it('should (1) check whether currentDefaultImage gets set to newDefaultImage, (2) that newDefaultImage.isDefault is switched  to true, and (3) that oldDefaultImage.isDefault is switched  to false', function() {
 
     var oldDefaultImage = {
-      "isDefault": true,
       "imgId": "5626de2ee2af4d41731ceec0",
+      "isDefault": true,
       "fileName": "77733_164312060274756_7884245_o.jpg",
       "description": "here's a boat, kitty",
       "categories": [],
       "title": "a boat",
-      "order": "0"
+      "order": 0
     };
 
     var newDefaultImage = {
@@ -221,7 +221,17 @@ describe('<ll-property-images>', function() {
       "title": "musician",
       "description": "play on, playa",
       "isDefault": false,
-      "order": 0,
+      "order": 1,
+      "categories": []
+    };
+
+    var otherImage = {
+      "imgId": "56291a3bed34778fsdljgnjkb2b",
+      "fileName": "musicians1234.jpg",
+      "title": "musician playa",
+      "description": "play on, playa. tru dat",
+      "isDefault": false,
+      "order": 3,
       "categories": []
     };
 
@@ -230,20 +240,77 @@ describe('<ll-property-images>', function() {
         [oldDefaultImage, newDefaultImage]
     };
 
-    var nodeListAsArray = [oldDefaultImage, newDefaultImage];
+    var nodeListAsArray = [oldDefaultImage, newDefaultImage, otherImage];
 
     var imagesToUpdate = {
-      oldDefaultId: imageData.detail[0].imgId,
-      newDefaultId: imageData.detail[1].imgId,
+      oldDefaultId: oldDefaultImage.imgId,
+      newDefaultId: newDefaultImage.imgId,
       nodeListAsArray: nodeListAsArray
     };
 
-    var currentDefaultImage = undefined;
+    expect(oldDefaultImage.isDefault).to.equal(true);
+    expect(newDefaultImage.isDefault).to.equal(false);
 
-    expect(currentDefaultImage).to.equal(undefined);
     element._updateViewForDefaultImage(imagesToUpdate, imageData);
-    expect(currentDefaultImage).to.equal(element.newDefaultImage);
 
+    expect(newDefaultImage).to.equal(element.currentDefaultImage);
+    expect(oldDefaultImage.isDefault).to.equal(false);
+    expect(newDefaultImage.isDefault).to.equal(true);
+
+  });
+
+  it('should ensure imagesToUpdate.oldDefaultId is set to the id of the old default image', function() {
+
+    var oldDefaultImage = {
+      "imgId": "5626de2ee2af4d41731ceec0",
+      "isDefault": true,
+      "fileName": "77733_164312060274756_7884245_o.jpg",
+      "description": "here's a boat, kitty",
+      "categories": [],
+      "title": "a boat",
+      "order": 0
+    };
+
+    var newDefaultImage = {
+      "imgId": "56291a3bed34778ff696eb2b",
+      "fileName": "musician.jpg",
+      "title": "musician",
+      "description": "play on, playa",
+      "isDefault": false,
+      "order": 1,
+      "categories": []
+    };
+
+    var otherImage = {
+      "imgId": "56291a3bed34778fsdljgnjkb2b",
+      "fileName": "musicians1234.jpg",
+      "title": "musician playa",
+      "description": "play on, playa. tru dat",
+      "isDefault": false,
+      "order": 3,
+      "categories": []
+    };
+
+    var nodeList = function() {
+      return [oldDefaultImage, newDefaultImage, otherImage];
+    };
+
+    var imageData = {
+      detail:
+        [oldDefaultImage, newDefaultImage]
+    };
+
+    var updateData = function (imagesToUpdate, imageData){
+      expect(imagesToUpdate.oldDefaultId).to.equal(oldDefaultImage.imgId);
+    };
+
+    var nodeListStub = sinon.stub(element, 'nodeListAsArray', nodeList);
+    var stubUpdateData = sinon.stub(element, '_updateViewForDefaultImage', updateData);
+
+    element.dataUpdateDefaultImageView(imageData);
+
+    expect(nodeListStub.called).to.be.true;
+    expect(stubUpdateData.called).to.be.true;
 
   });
 

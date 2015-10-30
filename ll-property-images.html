@@ -574,16 +574,20 @@ Example:
      * @param {array} imageData - an array of objects passed from the manager. it contains the objects for the old and the new default images, in that order.
      */
     dataUpdateDefaultImageView: function(imageData) {
-      var nodeListAsArray = Array.prototype.slice.call(this.querySelectorAll('ll-property-image'));
+      var nodeListAsArray = this.nodeListAsArray();
       var imagesToUpdate = {
         oldDefaultId: imageData.detail[0].imgId,
         newDefaultId: imageData.detail[1].imgId,
         nodeListAsArray: nodeListAsArray
       };
-      if (imageData.detail[0].imgId === undefined){
+      if(imageData.detail[0].imgId === undefined){
           imagesToUpdate.oldDefaultId = nodeListAsArray[0].imgId;
       }
       this._updateViewForDefaultImage(imagesToUpdate, imageData);
+    },
+
+    nodeListAsArray: function() {
+      return Array.prototype.slice.call(this.querySelectorAll('ll-property-image'));
     },
 
     /**
