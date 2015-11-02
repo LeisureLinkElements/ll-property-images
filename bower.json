@@ -1,6 +1,6 @@
 {
   "name": "ll-property-images",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "authors": [
     "Aaron Hickman <ahickman@leisurelink.com>",
     "Chris Tanseer <chris@christanseer.com>"
@@ -27,7 +27,7 @@
     "iron-ajax": "PolymerElements/iron-ajax#~1.0.3",
     "lodash": "~3.10.1",
     "paper-dialog": "PolymerElements/paper-dialog#~1.0.1",
-    "ll-image-uploader": "LeisureLinkElements/ll-image-uploader#layout-update"
+    "ll-image-uploader": "LeisureLinkElements/ll-image-uploader"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
