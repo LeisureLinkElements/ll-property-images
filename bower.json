@@ -24,7 +24,7 @@
     "polymer": "Polymer/polymer#^1.1.0",
     "ll-theme": "LeisureLinkElements/ll-theme",
     "ll-property-image": "LeisureLinkElements/ll-property-image",
-    "iron-ajax": "PolymerElements/iron-ajax#~1.0.3",
+    "iron-ajax": "PolymerElements/iron-ajax#~1.2.0",
     "lodash": "~3.10.1",
     "paper-dialog": "PolymerElements/paper-dialog#~1.0.1",
     "ll-image-uploader": "LeisureLinkElements/ll-image-uploader"
