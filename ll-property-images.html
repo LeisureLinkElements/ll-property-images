@@ -36,19 +36,19 @@ Example:
       margin-right: 15px;
     }
 
-    #confirmation, #confirmDefault {
+    #confirmation, #confirmPrimary {
       min-height: 170px;
       top: 150px;
     }
 
-    #confirmDefault .btn-destructive {
+    #confirmPrimary .btn-destructive {
       margin-left: 15px;
       background-color: #72ff82;
       border-color: #72ff82;
       color: #009900;
     }
 
-    #confirmDefault .btn-destructive:hover {
+    #confirmPrimary .btn-destructive:hover {
       background-color: #62c663;
       border-color: #62c663;
     }
@@ -106,18 +106,18 @@ Example:
       border: 4px solid #9c4755;
     }
 
-    #confirmDefault {
+    #confirmPrimary {
       border: 4px solid #0069AA;
     }
 
-    #confirmDefault .btn-primary {
+    #confirmPrimary .btn-primary {
       border-color: #004774;
     }
-    #confirmDefault .btn-primary, #confirmation .btn-primary{
+    #confirmPrimary .btn-primary, #confirmation .btn-primary{
       margin-left: 10px;
     }
 
-    #confirmDefault .btn-link, #confirmation .btn-link{
+    #confirmPrimary .btn-link, #confirmation .btn-link{
       margin-right: 10px;
     }
   </style>
@@ -144,7 +144,7 @@ Example:
           title="{{item.title}}"
           description="{{item.description}}"
           src="{{item.url}}"
-          is-default="{{item.isDefault}}"
+          is-primary="{{item.isPrimary}}"
           tags="{{item.tags}}"
           sort-order="{{item.sortOrder}}"
           read-only="{{readOnly}}">
@@ -172,15 +172,15 @@ Example:
     </paper-dialog>
 
 
-    <paper-dialog id="confirmDefault" modal>
-      <h4>SET DEFAULT IMAGE</h4>
+    <paper-dialog id="confirmPrimary" modal>
+      <h4>SET PRIMARY IMAGE</h4>
 
       <div>
-        Set this image as the default image?
+        Set this image as the primary image?
       </div>
       <div style="text-align: right;">
         <button class="btn btn-link" dialog-dismiss>Cancel</button>
-        <button class="btn btn-primary" dialog-confirm autofocus>Set as Default</button>
+        <button class="btn btn-primary" dialog-confirm autofocus>Set as Primary</button>
       </div>
     </paper-dialog>
   </template>
@@ -195,14 +195,14 @@ Example:
 
     listeners: {
       'll-property-image-delete': '_imageDeleted',
-      'll-property-image-default': '_defaultImageChange',
+      'll-property-image-primary': '_primaryImageChange',
       'iron-overlay-closed': '_dialogClosed',
       'll-property-image-drag': '_dragDropped',
       'images-received': '_imagesReceived',
       'image-added': '_imageAdded',
       'image-removed': '_imageRemoved',
       'image-updated': '_imageUpdated',
-      'image-made-default': 'dataUpdateDefaultImageView'
+      'image-made-primary': 'dataUpdatePrimaryImageView'
     },
 
     properties: {
@@ -215,7 +215,7 @@ Example:
       /**
        * The property images
        *
-       * @type {[{_id: string, title: string, description: string, isDefault: boolean, url: string}]}
+       * @type {[{_id: string, title: string, description: string, isPrimary: boolean, url: string}]}
        */
       _images: {
         type: Array,
@@ -224,6 +224,7 @@ Example:
       },
       baseUrl: {
         type: String,
+//        value: 'http://localhost:10030'
         value: 'http://images-api.ka'
       },
       readOnly: {
@@ -232,9 +233,9 @@ Example:
         observer: '_handleReadOnlyChange'
       },
       /**
-       * value is the id of the current default image
+       * value is the id of the current primary image
        */
-      currentDefaultImage: {
+      currentPrimaryImage: {
         type: Object,
         value: {}
       }
@@ -280,20 +281,20 @@ Example:
       dialogClosedEvent = 'deleteImage';
     },
     /**
-     * Fired when it receives the ll-property-image-default event
-     * Will call the manager to set the image as the default property image.
+     * Fired when it receives the ll-property-image-primary event
+     * Will call the manager to set the image as the primary property image.
      * @private
      */
-    _defaultImageChange: function(image) {
-      this.$.confirmDefault.open();
-      this.$.confirmDefault.setAttribute('img-id', image.detail.imgId);
-      this.$.confirmDefault.setAttribute('isDefault', image.detail.isDefault);
-      this.$.confirmDefault.setAttribute('file-name', image.detail.name);
-      this.$.confirmDefault.setAttribute('title', image.detail.title);
-      this.$.confirmDefault.setAttribute('description', image.detail.description);
-      this.$.confirmDefault.setAttribute('order', image.detail.sortOrder);
-      this.$.confirmDefault.setAttribute('categories', image.detail.tags);
-      dialogClosedEvent = 'confirmDefault';
+    _primaryImageChange: function(image) {
+      this.$.confirmPrimary.open();
+      this.$.confirmPrimary.setAttribute('img-id', image.detail.imgId);
+      this.$.confirmPrimary.setAttribute('isPrimary', image.detail.isPrimary);
+      this.$.confirmPrimary.setAttribute('file-name', image.detail.name);
+      this.$.confirmPrimary.setAttribute('title', image.detail.title);
+      this.$.confirmPrimary.setAttribute('description', image.detail.description);
+      this.$.confirmPrimary.setAttribute('order', image.detail.sortOrder);
+      this.$.confirmPrimary.setAttribute('categories', image.detail.tags);
+      dialogClosedEvent = 'confirmPrimary';
     },
     /**
      * Tells the component to load the images.
@@ -346,18 +347,18 @@ Example:
       var _this = this;
       if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'deleteImage') {
         this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
-      } else if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'confirmDefault') {
-        var newDefaultImage = {};
-        newDefaultImage.isDefault = true;
-        newDefaultImage.imgId = this.$.confirmDefault.getAttribute('img-id');
-        newDefaultImage.fileName = this.$.confirmDefault.getAttribute('file-name');
-        newDefaultImage.description = this.$.confirmDefault.getAttribute('description');
-        newDefaultImage.categories = this.$.confirmDefault.getAttribute('categories');
-        newDefaultImage.title = this.$.confirmDefault.getAttribute('title');
-        newDefaultImage.order = this.$.confirmDefault.getAttribute('order');
-        this.$.manager.setAsDefaultImage(newDefaultImage, _this.currentDefaultImage);
+      } else if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'confirmPrimary') {
+        var newPrimaryImage = {};
+        newPrimaryImage.isPrimary = true;
+        newPrimaryImage.imgId = this.$.confirmPrimary.getAttribute('img-id');
+        newPrimaryImage.fileName = this.$.confirmPrimary.getAttribute('file-name');
+        newPrimaryImage.description = this.$.confirmPrimary.getAttribute('description');
+        newPrimaryImage.categories = this.$.confirmPrimary.getAttribute('categories');
+        newPrimaryImage.title = this.$.confirmPrimary.getAttribute('title');
+        newPrimaryImage.order = this.$.confirmPrimary.getAttribute('order');
+        this.$.manager.setAsPrimaryImage(newPrimaryImage, _this.currentPrimaryImage);
       }
-      this.currentDefaultImage = newDefaultImage;
+      this.currentPrimaryImage = newPrimaryImage;
     },
 
     /**
@@ -419,7 +420,7 @@ Example:
               fileName: item.name,
               title: item.title,
               tags: item.tags,
-              isDefault: item.isDefault
+              isPrimary: item.isPrimary
             };
 
             self.$.manager.updateImage(tempImg);
@@ -452,14 +453,14 @@ Example:
       if (!data || !data.detail) {
         return;
       }
-      this._setDefaultImage(data);
+      this._setPrimaryImage(data);
       this._images = data.detail.map(function(image) {
         return {
           _id: image._id,
           fileName: image.fileName,
           title: image.title,
           description: image.description || '',
-          isDefault: image.isDefault || false,
+          isPrimary: image.isPrimary || false,
           url: image.url,
           sortOrder: image.order || 0,
           tags: image.categories || []
@@ -469,22 +470,22 @@ Example:
     },
 
     /**
-     * sets up the initial default image, called by _imagesReceived(), which is invoked by the ready() event
+     * sets up the initial primary image, called by _imagesReceived(), which is invoked by the ready() event
      * @param {Object} data - an array of objects for each image
      */
-    _setDefaultImage: function(data) {
+    _setPrimaryImage: function(data) {
       for (var i = 0; i < data.detail.length; i++) {
-        if(data.detail[i].isDefault === true) {
-          var newDefaultImage = {
+        if(data.detail[i].isPrimary === true) {
+          var newPrimaryImage = {
               imgId: data.detail[i]._id,
               fileName: data.detail[i].fileName,
               title: data.detail[i].title || '',
               description: data.detail[i].description || '',
-              isDefault: data.detail[i].isDefault,
+              isPrimary: data.detail[i].isPrimary,
               order: data.detail[i].order,
               categories: data.detail[i].tags || []
           };
-          return this.currentDefaultImage = newDefaultImage;
+          return this.currentPrimaryImage = newPrimaryImage;
         }
       }
     },
@@ -499,15 +500,15 @@ Example:
     _imageAdded: function(data) {
       var image = data.detail;
       if (this._images.length === 0) {
-        image.isDefault = true;
-        this.currentDefaultImage = image;
+        image.isPrimary = true;
+        this.currentPrimaryImage = image;
       }
       this.push('_images', {
         _id: image._id,
         fileName: image.fileName,
         title: image.title,
         description: image.description,
-        isDefault: image.isDefault || false,
+        isPrimary: image.isPrimary || false,
         tags: image.tags || [],
         url: image.url,
         sortOrder: this._images.length
@@ -549,46 +550,46 @@ Example:
     },
 
     /**
-     * call by `dataUpdateDefaultImageView()` and will update the new and old default images on the client side
+     * call by `dataUpdatePrimaryImageView()` and will update the new and old primary images on the client side
      * without needing to refresh the page. (The images have already been updated at this point in the database.)
-     * This fn is separated from `dataUpdateDefaultImageView()` in order to test.
-     * @param {array} imagesToUpdate - passed in when invoked by dataUpdateDefaultImageView
-     * @param {object} imageData - data passed indirectly from `setAsDefaultImage()` in the ll-prop-images-manager via `dataUpdateDefaultImageView()`
+     * This fn is separated from `dataUpdatePrimaryImageView()` in order to test.
+     * @param {array} imagesToUpdate - passed in when invoked by dataUpdatePrimaryImageView
+     * @param {object} imageData - data passed indirectly from `setAsPrimaryImage()` in the ll-prop-images-manager via `dataUpdatePrimaryImageView()`
      * @private
      **/
-    _updateViewForDefaultImage: function (imagesToUpdate, imageData) {
+    _updateViewForPrimaryImage: function (imagesToUpdate, imageData) {
       var _this = this;
       imagesToUpdate.nodeListAsArray.filter(function(image) {
           return image.id = imageData.detail
         })
         .forEach(function(image) {
-          if(image.imgId === imagesToUpdate.oldDefaultId){
-            image.isDefault = false;
+          if(image.imgId === imagesToUpdate.oldPrimaryId){
+            image.isPrimary = false;
           }
-          if(image.imgId === imagesToUpdate.newDefaultId) {
-            image.isDefault = true;
-            _this.currentDefaultImage = image;
+          if(image.imgId === imagesToUpdate.newPrimaryId) {
+            image.isPrimary = true;
+            _this.currentPrimaryImage = image;
           }
         });
     },
 
     /**
-     * This method is called when the event 'image-made-default' is raised from the manager.
-     * It will contain the ids of the previous and new default images.
-     * We need to find the Image by Id, and toggle each object's 'isDefault' value.
-     * @param {array} imageData - an array of objects passed from the manager. it contains the objects for the old and the new default images, in that order.
+     * This method is called when the event 'image-made-primary' is raised from the manager.
+     * It will contain the ids of the previous and new primary images.
+     * We need to find the Image by Id, and toggle each object's 'isPrimary' value.
+     * @param {array} imageData - an array of objects passed from the manager. it contains the objects for the old and the new primary images, in that order.
      */
-    dataUpdateDefaultImageView: function(imageData) {
+    dataUpdatePrimaryImageView: function(imageData) {
       var nodeListAsArray = this.nodeListAsArray();
       var imagesToUpdate = {
-        oldDefaultId: imageData.detail[0].imgId,
-        newDefaultId: imageData.detail[1].imgId,
+        oldPrimaryId: imageData.detail[0].imgId,
+        newPrimaryId: imageData.detail[1].imgId,
         nodeListAsArray: nodeListAsArray
       };
       if(imageData.detail[0].imgId === undefined){
-          imagesToUpdate.oldDefaultId = nodeListAsArray[0].imgId;
+          imagesToUpdate.oldPrimaryId = nodeListAsArray[0].imgId;
       }
-      this._updateViewForDefaultImage(imagesToUpdate, imageData);
+      this._updateViewForPrimaryImage(imagesToUpdate, imageData);
     },
 
     nodeListAsArray: function() {
