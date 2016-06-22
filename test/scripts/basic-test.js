@@ -8,8 +8,8 @@ describe('<ll-property-images>', function() {
       nodeListAsArray,
       imageData,
       otherImage,
-      newDefaultImage,
-      oldDefaultImage;
+      newPrimaryImage,
+      oldPrimaryImage;
 
   beforeEach(function(done) {
     element = fixture('fixture');
@@ -23,7 +23,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah.jpg',
         title: 'Blah',
         description: 'Blah description',
-        isDefault: true,
+        isPrimary: true,
         tags: ['1','2','3'],
         url: 'http://lorempixel.com/1/1/',
         sortOrder: 9
@@ -32,7 +32,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah1.jpg',
         title: 'Kitchen',
         description: 'This is my awesome kitchen',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Kitchen','Stove','Refrigerator'],
         sortOrder: 1
       },{
@@ -40,7 +40,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah2.jpg',
         title: 'Living Room',
         description: 'This is my Living Room',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Couch','TV'],
         sortOrder: 2
       },{
@@ -48,7 +48,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah24.jpg',
         title: 'Living Room 2',
         description: 'This is my Living Room again',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Couch','TV'],
         sortOrder: 4
       },{
@@ -56,7 +56,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah3.jpg',
         title: 'Master Bedroom',
         description: 'This is the master bedroom. It is where the magic happens.',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Magic','bed'],
         sortOrder: 3
       },{
@@ -64,7 +64,7 @@ describe('<ll-property-images>', function() {
         fileName: 'blah24d.jpg',
         title: 'Amazing View',
         description: 'View from the back patio',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Outside','Exterior'],
         sortOrder: 7
       },{
@@ -72,7 +72,7 @@ describe('<ll-property-images>', function() {
         fileName: 'moose.jpg',
         title: 'My Pet Moose',
         description: 'His name is Knuckles',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Outside','Exterior'],
         sortOrder: 99
       },{
@@ -80,15 +80,15 @@ describe('<ll-property-images>', function() {
         fileName: 'moose.jpg',
         title: 'My Pet Moose',
         description: 'His name is Knuckles',
-        isDefault: false,
+        isPrimary: false,
         tags: ['Outside','Exterior'],
         sortOrder: 11
       }
     ];
 
-    oldDefaultImage = {
+    oldPrimaryImage = {
       "imgId": "5626de2ee2af4d41731ceec0",
-      "isDefault": true,
+      "isPrimary": true,
       "fileName": "77733_164312060274756_7884245_o.jpg",
       "description": "here's a boat, kitty",
       "categories": [],
@@ -96,12 +96,12 @@ describe('<ll-property-images>', function() {
       "order": 0
     };
 
-    newDefaultImage = {
+    newPrimaryImage = {
       "imgId": "56291a3bed34778ff696eb2b",
       "fileName": "musician.jpg",
       "title": "musician",
       "description": "play on, playa",
-      "isDefault": false,
+      "isPrimary": false,
       "order": 1,
       "categories": []
     };
@@ -111,21 +111,21 @@ describe('<ll-property-images>', function() {
       "fileName": "musicians1234.jpg",
       "title": "musician playa",
       "description": "play on, playa. tru dat",
-      "isDefault": false,
+      "isPrimary": false,
       "order": 3,
       "categories": []
     };
 
-    nodeListAsArray = [oldDefaultImage, newDefaultImage];
+    nodeListAsArray = [oldPrimaryImage, newPrimaryImage];
 
     imageData = {
       detail:
-        [oldDefaultImage, newDefaultImage]
+        [oldPrimaryImage, newPrimaryImage]
     };
 
     imagesToUpdate = {
-      oldDefaultId: oldDefaultImage.imgId,
-      newDefaultId: newDefaultImage.imgId,
+      oldPrimaryId: oldPrimaryImage.imgId,
+      newPrimaryId: newPrimaryImage.imgId,
       nodeListAsArray: nodeListAsArray
     };
 
@@ -205,63 +205,63 @@ describe('<ll-property-images>', function() {
   });
 
 
-  it('should update default image when setAsDefaultImage() is invoked', function() {
+  it('should update primary image when setAsPrimaryImage() is invoked', function() {
 
     var _item = imageData.detail[0]; //id 12345
     var _target = imageData.detail[1]; //id 1234
 
-    expect(_item.isDefault).to.be.eql(true);
-    expect(_target.isDefault).to.be.eql(false);
+    expect(_item.isPrimary).to.be.eql(true);
+    expect(_target.isPrimary).to.be.eql(false);
 
-    element._updateViewForDefaultImage(imagesToUpdate, imageData);
+    element._updateViewForPrimaryImage(imagesToUpdate, imageData);
 
-    expect(_item.isDefault).to.be.eql(false);
-    expect(_target.isDefault).to.be.eql(true);
-
-  });
-
-  it('should (1) check whether currentDefaultImage gets set to newDefaultImage on the front end after calling `_updateViewForDefaultImage()`', function() {
-
-    element._updateViewForDefaultImage(imagesToUpdate, imageData);
-
-    expect(newDefaultImage).to.equal(element.currentDefaultImage);
+    expect(_item.isPrimary).to.be.eql(false);
+    expect(_target.isPrimary).to.be.eql(true);
 
   });
 
-  it('should check that newDefaultImage.isDefault is switched to true on the front end after calling `_updateViewForDefaultImage()`', function() {
+  it('should (1) check whether currentPrimaryImage gets set to newPrimaryImage on the front end after calling `_updateViewForPrimaryImage()`', function() {
 
-    expect(newDefaultImage.isDefault).to.equal(false);
+    element._updateViewForPrimaryImage(imagesToUpdate, imageData);
 
-    element._updateViewForDefaultImage(imagesToUpdate, imageData);
-
-    expect(newDefaultImage.isDefault).to.equal(true);
+    expect(newPrimaryImage).to.equal(element.currentPrimaryImage);
 
   });
 
-  it('should check that oldDefaultImage.isDefault is switched to false on the front end after calling `_updateViewForDefaultImage()`', function() {
+  it('should check that newPrimaryImage.isPrimary is switched to true on the front end after calling `_updateViewForPrimaryImage()`', function() {
 
-    expect(oldDefaultImage.isDefault).to.equal(true);
+    expect(newPrimaryImage.isPrimary).to.equal(false);
 
-    element._updateViewForDefaultImage(imagesToUpdate, imageData);
+    element._updateViewForPrimaryImage(imagesToUpdate, imageData);
 
-    expect(oldDefaultImage.isDefault).to.equal(false);
+    expect(newPrimaryImage.isPrimary).to.equal(true);
 
   });
 
-  it('should ensure imagesToUpdate.oldDefaultId is set to the id of the old default image', function() {
+  it('should check that oldPrimaryImage.isPrimary is switched to false on the front end after calling `_updateViewForPrimaryImage()`', function() {
+
+    expect(oldPrimaryImage.isPrimary).to.equal(true);
+
+    element._updateViewForPrimaryImage(imagesToUpdate, imageData);
+
+    expect(oldPrimaryImage.isPrimary).to.equal(false);
+
+  });
+
+  it('should ensure imagesToUpdate.oldPrimaryId is set to the id of the old primary image', function() {
 
     var nodeList = function() {
-      return [oldDefaultImage, newDefaultImage, otherImage];
+      return [oldPrimaryImage, newPrimaryImage, otherImage];
     };
 
     var updateData = function (imagesToUpdate, imageData){
-      expect(imagesToUpdate.oldDefaultId).to.equal(oldDefaultImage.imgId);
+      expect(imagesToUpdate.oldPrimaryId).to.equal(oldPrimaryImage.imgId);
     };
 
     var nodeListStub = sinon.stub(element, 'nodeListAsArray', nodeList);
-    var stubUpdateData = sinon.stub(element, '_updateViewForDefaultImage', updateData);
+    var stubUpdateData = sinon.stub(element, '_updateViewForPrimaryImage', updateData);
 
-    element.dataUpdateDefaultImageView(imageData);
+    element.dataUpdatePrimaryImageView(imageData);
 
     expect(nodeListStub.called).to.be.true;
     expect(stubUpdateData.called).to.be.true;

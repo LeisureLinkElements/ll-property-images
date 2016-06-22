@@ -61,7 +61,7 @@ Example:
     /**
      * The `images-received` event is fired when the images have been retrieved
      * @event image-received
-     * @detail {[{ id: string, name: string, title: string, url: string, isDefault: boolean }]}
+     * @detail {[{ id: string, name: string, title: string, url: string, isPrimary: boolean }]}
      */
 
     /**
@@ -76,14 +76,14 @@ Example:
     /**
      * The `image-added` event is fired when an image has been added successfully
      * @event image-added
-     * @detail {{ id: string, name: string, title: string, url: string, isDefault: boolean }}
+     * @detail {{ id: string, name: string, title: string, url: string, isPrimary: boolean }}
      */
 
     /**
      * Adds/uploads and image an image and fires the `image-added` event
      *
      * @fires image-added
-     * @param {{name: string, title: string, image: fileStream, isDefault: boolean}} image
+     * @param {{name: string, title: string, image: fileStream, isPrimary: boolean}} image
      */
     addImage: function(image, index) {
       var ajax = this.$.add;
@@ -99,14 +99,14 @@ Example:
     /**
      * The `image-updated` event is fired when an image has been added successfully
      * @event image-updated
-     * @detail {{ id: string, name: string, title: string, url: string, isDefault: boolean }}
+     * @detail {{ id: string, name: string, title: string, url: string, isPrimary: boolean }}
      */
 
     /**
      * Updates the image and fires the `image-updated` event
      *
      * @fires image-updated
-     * @param {{id: string, name: string, title: string, image: fileStream, isDefault: boolean}} image
+     * @param {{id: string, name: string, title: string, image: fileStream, isPrimary: boolean}} image
      */
     updateImage: function(image) {
       var ajax = this.$.update;
@@ -116,7 +116,7 @@ Example:
       ajax.body = JSON.stringify({
         title: image.title,
         description: image.description  || '',
-        isDefault: image.isDefault,
+        isPrimary: image.isPrimary,
         order: image.sortOrder,
         categories: image.tags,
         fileName: image.fileName
@@ -143,30 +143,32 @@ Example:
 
 
     /**
-     * The `image-made-default` event is fired when an image has been set as default successfully.
-     * @event image-made-default
-     * @detail {[{ id: string, name: string, title: string, url: string, isDefault: boolean }]}
+     * The `image-made-primary` event is fired when an image has been set as primary successfully.
+     * @event image-made-primary
+     * @detail {[{ id: string, name: string, title: string, url: string, isPrimary: boolean }]}
      */
 
     /**
-     * Makes the image the default image, and fires the event `image-made-default`.
-     * @param {object} newDefaultImage - the data object for the image that will be set to the default
-     * @param {object} oldDefaultImage - the data object for the image that will be removed from the default status
+     * Makes the image the primary image, and fires the event `image-made-primary`.
+     * @param {object} newPrimaryImage - the data object for the image that will be set to the primary
+     * @param {object} oldPrimaryImage - the data object for the image that will be removed from the primary status
      */
-    setAsDefaultImage: function(newDefaultImage, oldDefaultImage) {
-      oldDefaultImage.isDefault = false;
-      this.updateImage(newDefaultImage);
-      this.updateImage(oldDefaultImage);
-      var imageData = [oldDefaultImage, newDefaultImage];
-      this.fire('image-made-default', imageData);
+    setAsPrimaryImage: function(newPrimaryImage, oldPrimaryImage) {
+      oldPrimaryImage.isPrimary = false;
+      this.updateImage(newPrimaryImage);
+      this.updateImage(oldPrimaryImage);
+      var imageData = [oldPrimaryImage, newPrimaryImage];
+      this.fire('image-made-primary', imageData);
     },
 
     _buildUrl: function(baseUrl, language, unitId) {
       return baseUrl + 'images-api/public/v1/' + language + '/units/' + unitId + '/images';
+//      return baseUrl + 'media-api/public/v1/' + language + '/units/' + unitId + '/images';
     },
 
     _buildUrlWithId: function(baseUrl, language, id) {
-      return baseUrl+ 'images-api/public/v1/' + language + '/images/' + id
+      return baseUrl+ 'images-api/public/v1/' + language + '/images/' + id;
+//      return baseUrl+ 'media-api/public/v1/' + language + '/images/' + id;
     },
 
 
