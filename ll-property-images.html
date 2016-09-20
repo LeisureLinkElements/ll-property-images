@@ -132,7 +132,7 @@ Example:
     <ll-image-uploader id="uploader" on-upload="_handleUpload"></ll-image-uploader>
     <hr/>
 
-    <ll-property-images-manager id="manager" unit-id="[[unitId]]" base-url="[[baseUrl]]">
+    <ll-property-images-manager id="manager" unit-id="[[unitId]]" pmc-id="[[pmcId]]" image-url="[[imageUrl]]">
     </ll-property-images-manager>
 
     <div class="row" id="row">
@@ -213,6 +213,11 @@ Example:
       unitId: { type: String, notify: true, value: '' },
 
       /**
+       * The id of the pmc the property belongs to (requrired for API calls)
+       */
+      pmcId: { type: String, notify: true, value: '' },
+
+      /**
        * The property images
        *
        * @type {[{_id: string, title: string, description: string, isDefault: boolean, url: string}]}
@@ -222,9 +227,9 @@ Example:
         notify: true,
         value: []
       },
-      baseUrl: {
+      imageUrl: {
         type: String,
-        value: 'http://images-api.ka'
+        value: '/'
       },
       readOnly: {
         type: Boolean,
@@ -277,6 +282,7 @@ Example:
       _itemToDelete = e.detail.imgId;
       this.$.confirmation.open();
       this.$.confirmation.setAttribute('img-id', e.detail.imgId);
+      this.$.confirmation.setAttribute('pmc-id', e.detail.pmcId);
       dialogClosedEvent = 'deleteImage';
     },
     /**
@@ -345,7 +351,11 @@ Example:
     _dialogClosed: function(e) {
       var _this = this;
       if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'deleteImage') {
-        this.$.manager.deleteImage(this.$.confirmation.getAttribute('img-id'));
+        this.$.manager.deleteImage({
+          imgId: this.$.confirmation.getAttribute('img-id'),
+          pmcId: this.getAttribute('pmc-id'),
+          unitId: this.getAttribute('unit-id') // IH-API currently requires this information to complete request. :(
+        });
       } else if (e && e.detail && e.detail.confirmed && dialogClosedEvent === 'confirmDefault') {
         var newDefaultImage = {};
         newDefaultImage.isDefault = true;
@@ -355,7 +365,7 @@ Example:
         newDefaultImage.categories = this.$.confirmDefault.getAttribute('categories');
         newDefaultImage.title = this.$.confirmDefault.getAttribute('title');
         newDefaultImage.order = this.$.confirmDefault.getAttribute('order');
-        this.$.manager.setAsDefaultImage(newDefaultImage, _this.currentDefaultImage);
+        this.$.manager.setAsDefaultImage(newDefaultImage, _this.currentDefaultImage || {});
       }
       this.currentDefaultImage = newDefaultImage;
     },
@@ -386,7 +396,7 @@ Example:
       var _target;
 
       var _imageNodeList = this.querySelectorAll('ll-property-image');
-      Array.prototype.slice.call(_imageNodeList)
+      [].slice.call(_imageNodeList)
         .forEach(function(item) {
 
           item.resetDropStyles();
@@ -410,7 +420,7 @@ Example:
     _updateSortValues: function() {
       var _imageNodeList = this.querySelectorAll('ll-property-image');
       var self = this;
-      Array.prototype.slice.call(_imageNodeList)
+      [].slice.call(_imageNodeList)
         .forEach(function(item, index) {
           if(item.sortOrder !== index) {
             var tempImg = {
@@ -455,7 +465,7 @@ Example:
       this._setDefaultImage(data);
       this._images = data.detail.map(function(image) {
         return {
-          _id: image._id,
+          _id: image.mediaId,
           fileName: image.fileName,
           title: image.title,
           description: image.description || '',
@@ -473,20 +483,15 @@ Example:
      * @param {Object} data - an array of objects for each image
      */
     _setDefaultImage: function(data) {
-      for (var i = 0; i < data.detail.length; i++) {
-        if(data.detail[i].isDefault === true) {
-          var newDefaultImage = {
-              imgId: data.detail[i]._id,
-              fileName: data.detail[i].fileName,
-              title: data.detail[i].title || '',
-              description: data.detail[i].description || '',
-              isDefault: data.detail[i].isDefault,
-              order: data.detail[i].order,
-              categories: data.detail[i].tags || []
-          };
-          return this.currentDefaultImage = newDefaultImage;
-        }
-      }
+      return this.currentDefaultImage = data.detail
+        .filter(function (img) { return img.isDefault })
+        .map(function (img) {
+          return _.assign({
+            title: '',
+            description: '',
+            categories: img.tags
+          }, img);
+        })[0];
     },
 
     /**
@@ -503,14 +508,14 @@ Example:
         this.currentDefaultImage = image;
       }
       this.push('_images', {
-        _id: image._id,
+        _id: image.mediaId,
         fileName: image.fileName,
         title: image.title,
-        description: image.description,
+        description: image.description || '',
         isDefault: image.isDefault || false,
         tags: image.tags || [],
         url: image.url,
-        sortOrder: this._images.length
+        sortOrder: image.order || this._images.length
       });
 
       this.$.uploader.reset();
@@ -539,7 +544,7 @@ Example:
     _imageUpdated: function(data) {
       var _imageNodeList = this.querySelectorAll('ll-property-image');
 
-      Array.prototype.slice.call(_imageNodeList)
+      [].slice.call(_imageNodeList)
         .filter(function(image) {
           return image.id == data.detail
         })
