@@ -486,27 +486,12 @@ Example:
       return this.currentDefaultImage = data.detail
         .filter(function (img) { return img.isDefault })
         .map(function (img) {
-          console.log('pre transform if img: ', img);
           return _.assign({
             title: '',
             description: '',
             categories: img.tags
           }, img);
         })[0];
-      // for (var i = 0; i < data.detail.length; i++) {
-      //   if(data.detail[i].isDefault === true) {
-      //     var newDefaultImage = {
-      //         imgId: data.detail[i]._id,
-      //         fileName: data.detail[i].fileName,
-      //         title: data.detail[i].title || '',
-      //         description: data.detail[i].description || '',
-      //         isDefault: data.detail[i].isDefault,
-      //         order: data.detail[i].order,
-      //         categories: data.detail[i].tags || []
-      //     };
-      //     return this.currentDefaultImage = newDefaultImage;
-      //   }
-      // }
     },
 
     /**
