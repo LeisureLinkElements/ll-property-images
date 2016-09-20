@@ -14,9 +14,9 @@ Example:
 -->
 <dom-module id="ll-property-images-manager">
   <template>
-    <iron-ajax id="all" url="{{_allUrl}}" handle-as="json" on-response="_handleAll"></iron-ajax>
-    <iron-ajax id="add" url="{{_addUrl}}" handle-as="json" on-response="_handleAdd" method="POST" on-error="_handleAjaxError"></iron-ajax>
-    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PUT" on-error="_handleAjaxError"></iron-ajax>
+    <iron-ajax id="all"    handle-as="json" on-response="_handleAll"                                                url="{{_allUrl}}"></iron-ajax>
+    <iron-ajax id="add"    handle-as="json" on-response="_handleAdd"    method="POST"   on-error="_handleAjaxError" url="{{_addUrl}}"></iron-ajax>
+    <iron-ajax id="update" handle-as="json" on-response="_handleUpdate" method="PATCH"    on-error="_handleAjaxError"></iron-ajax>
     <iron-ajax id="delete" handle-as="text" on-response="_handleDelete" method="DELETE" on-error="_handleAjaxError"></iron-ajax>
   </template>
 </dom-module>
@@ -30,23 +30,24 @@ Example:
     properties: {
 
       /**
-       * The base url of the api
+       * The image url pattern for the api
        */
-      baseUrl: { type: String, notify: true, reflectToAttribute: true },
+      imageUrl: { type: String, notify: true, reflectToAttribute: true },
 
       /**
        * The base url of the api
        */
       unitId: { type: String, notify: true, reflectToAttribute: true },
+      pmcId: { type: String, notify: true, reflectToAttribute: true },
 
       _allUrl: {
         type: String,
-        computed: '_buildUrl(baseUrl, _language, unitId)'
+        computed: '_buildUrl(imageUrl, _language, unitId, pmcId)'
       },
 
       _addUrl: {
         type: String,
-        computed: '_buildUrl(baseUrl, _language, unitId)'
+        computed: '_buildUrl(imageUrl, _language, unitId, pmcId)'
       },
 
       _language: { type: String, readOnly: true, value: 'en' }
@@ -70,6 +71,7 @@ Example:
      */
     getImages: function() {
       var ajax = this.$.all;
+      ajax.url = this._buildUrl(this.imageUrl, this._language, this.unitId, this.pmcId)
       ajax.generateRequest();
     },
 
@@ -90,7 +92,7 @@ Example:
       var data = new FormData();
 
       data.append('order', (index > 0)? index + 1 : index);
-      data.append('image', image.file);
+      data.append('file', image.file);
       data.append('title', image.title);
       ajax.contentType = null;
       ajax.body = data;
@@ -110,16 +112,14 @@ Example:
      */
     updateImage: function(image) {
       var ajax = this.$.update;
-
       ajax.contentType = 'application/json';
-      ajax.url = this._buildUrlWithId(this.baseUrl, this._language, image.imgId);
+      ajax.url = this._buildUrlWithId(this.imageUrl, this._language, image.imgId, this.pmcId, this.unitId);
       ajax.body = JSON.stringify({
         title: image.title,
         description: image.description  || '',
         isDefault: image.isDefault,
         order: image.sortOrder,
-        categories: image.tags,
-        fileName: image.fileName
+        categories: image.tags
       });
       ajax.generateRequest();
     },
@@ -132,12 +132,12 @@ Example:
 
     /**
      * Removes and image and fires the `image-removed` event
-     * @param {string} id
+     * @param {object} data { imgId, pmcId }
      * @fires image-removed
      */
-    deleteImage: function(id) {
+    deleteImage: function(data) {
       var ajax = this.$.delete;
-      ajax.url = this._buildUrlWithId(this.baseUrl, this._language, id);
+      ajax.url = this._buildUrlWithId(this.imageUrl, this._language, data.imgId, data.pmcId, data.unitId);
       ajax.generateRequest();
     },
 
@@ -161,21 +161,22 @@ Example:
       this.fire('image-made-default', imageData);
     },
 
-    _buildUrl: function(baseUrl, language, unitId) {
-      return baseUrl + 'images-api/public/v1/' + language + '/units/' + unitId + '/images';
+    _buildUrl: function(baseUrl, language, unitId, pmcId) {
+      return baseUrl + '?unitId=' + unitId + '&pmcId=' + pmcId;
     },
 
-    _buildUrlWithId: function(baseUrl, language, id) {
-      return baseUrl+ 'images-api/public/v1/' + language + '/images/' + id
+    _buildUrlWithId: function(baseUrl, language, id, pmcId, unitId) {
+      return baseUrl + '/' + id + '?pmcId=' + pmcId + '&unitId=' + unitId;
     },
 
 
     _handleAll: function(e, detail) {
-      this.fire('images-received', detail.response);
+      this.fire('images-received', detail.response.body);
     },
 
     _handleAdd: function(e, detail) {
-      this.fire('image-added', detail.response);
+      console.log('_handleAdd: ', e, detail);
+      this.fire('image-added', detail.response.media);
     },
 
     _handleUpdate: function(e, detail) {
@@ -185,6 +186,7 @@ Example:
 
     _handleDelete: function(e, detail) {
       var id = _.last(detail.xhr.responseURL.split('/'));
+      console.log('_handleDelete: ', e, detail, id);
       this.fire('image-removed', id);
     },
     _handleAjaxError: function(e, detail) {
