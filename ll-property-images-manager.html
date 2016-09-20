@@ -175,7 +175,6 @@ Example:
     },
 
     _handleAdd: function(e, detail) {
-      console.log('_handleAdd: ', e, detail);
       this.fire('image-added', detail.response.media);
     },
 
@@ -186,7 +185,6 @@ Example:
 
     _handleDelete: function(e, detail) {
       var id = _.last(detail.xhr.responseURL.split('/'));
-      console.log('_handleDelete: ', e, detail, id);
       this.fire('image-removed', id);
     },
     _handleAjaxError: function(e, detail) {
